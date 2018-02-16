@@ -3,15 +3,28 @@ package com.example.manuel.thingseedemo;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Map extends Fragment {
+public class Map extends Fragment implements OnMapReadyCallback {
+
+    private View myView;
+    GoogleMap myMap;
 
 
     public Map() {
@@ -23,7 +36,35 @@ public class Map extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map, container, false);
+
+
+        // myView in case we want to access ui elements in this fragment
+
+        myView = inflater.inflate(R.layout.fragment_map, container, false);
+
+
+
+        return myView;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        myMap = googleMap;
+        LatLng metropolia = new LatLng(60.220941, 24.804980);
+        MarkerOptions options1 = new MarkerOptions();
+        options1.position(metropolia).title("Metropolia");
+        myMap.addMarker(options1);
+        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(metropolia, 15));
+
+
+    }
 }

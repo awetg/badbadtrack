@@ -1,6 +1,16 @@
 <resources>
-    <string name="app_name">Thingsee</string>
+    <string name="app_name">ThingSee</string>
     <string name="prompt">No credentials set, give Thingsee username and password</string>
     <string name="info_prompt">Invalid username/password or no connection to Thingsee, give Thingsee username and password</string>
     <string name="no_connection">No connection to Thingsee</string>
+    <string name="title_activity_main">ThingSee</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
