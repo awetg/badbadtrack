@@ -107,10 +107,12 @@ private NavigationView navigationView;
                 fragment = new Logs();
                 break;
 
-            case R.id.nav_slideshow:
+            case R.id.history:
+                fragment = new History();
                 break;
 
             case R.id.settings:
+                fragment = new Settings();
                 break;
 
             case R.id.share:
