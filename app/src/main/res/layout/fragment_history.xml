@@ -37,7 +37,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_below="@+id/textView1"
-            android:background="@drawable/side_nav_bar"
             android:src="@android:drawable/ic_menu_my_calendar" />
 
         <TextView
@@ -86,7 +85,6 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_below="@+id/textView2"
-            android:background="@drawable/side_nav_bar"
             android:src="@android:drawable/ic_menu_my_calendar" />
 
         <TextView
