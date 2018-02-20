@@ -1,4 +1,4 @@
-package com.example.manuel.thingseedemo;
+package com.example.manuel.thingseedemo.fragments;
 
 
 import android.app.DatePickerDialog;
@@ -14,6 +14,8 @@ import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import com.example.manuel.thingseedemo.R;
 
 import java.text.DateFormat;
 import java.text.ParseException;

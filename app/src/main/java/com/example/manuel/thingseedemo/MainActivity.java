@@ -12,6 +12,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.manuel.thingseedemo.fragments.History;
+import com.example.manuel.thingseedemo.fragments.Logs;
+import com.example.manuel.thingseedemo.fragments.Map;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 

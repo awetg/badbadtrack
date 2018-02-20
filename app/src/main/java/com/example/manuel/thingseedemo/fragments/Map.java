@@ -1,4 +1,4 @@
-package com.example.manuel.thingseedemo;
+package com.example.manuel.thingseedemo.fragments;
 
 
 import android.Manifest;
@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.manuel.thingseedemo.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;

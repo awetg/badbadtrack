@@ -1,4 +1,4 @@
-package com.example.manuel.thingseedemo;
+package com.example.manuel.thingseedemo.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,6 +18,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.manuel.thingseedemo.R;
+import com.example.manuel.thingseedemo.ThingSee;
 
 import org.json.JSONArray;
 
@@ -160,7 +163,7 @@ public class Logs extends Fragment implements View.OnClickListener {
      * so that it does not slow down the user interface (UI)
      */
     private class TalkToThingsee extends AsyncTask<String, Integer, String> {
-        ThingSee       thingsee;
+        ThingSee thingsee;
         List<Location> coordinates = new ArrayList<Location>();
 
         @Override
