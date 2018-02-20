@@ -139,10 +139,26 @@ public class ThingSee {
      * Every device has an event log. This method read the given devices event log.
      *
      * @param  device    Device JSON description (given by Devices() method
-     * @param  limit     Maximum number of events retrieved
+     * @param  start     Initial timestamp
+     * @param  end       Ending timestamp
      * @return           Events in JSON format
      * @throws Exception Gives an exception with text information if there was an error
      */
+    public JSONArray Events(JSONObject device, long start, long end) throws Exception {
+        JSONObject resp;
+        JSONArray  events;
+
+        try {
+            resp = getThingSeeObject(null, "/events/" + device.getString("uuid") + "?type=sense&start=" + start + "&end=" + end);
+            events  = (JSONArray)resp.get("events");
+        } catch (Exception e) {
+            Log.d("THINGSEE", "ThingseeEvents error " + e);
+            throw new Exception("No events");
+        }
+
+        return (events);
+    }
+
     public JSONArray Events(JSONObject device, int limit) throws Exception {
         JSONObject resp;
         JSONArray  events;
@@ -158,6 +174,7 @@ public class ThingSee {
         return (events);
     }
 
+
     /* senseID groupID field */
     private static final int GROUP_LOCATION     = 0x01 << 16;
     private static final int GROUP_SPEED        = 0x02 << 16;
@@ -172,6 +189,28 @@ public class ThingSee {
     private static final int PROPERTY2          = 0x02 << 8;
     private static final int PROPERTY3          = 0x03 << 8;
     private static final int PROPERTY4          = 0x04 << 8;
+
+    //Constants added by Manuel
+
+    //Group Location
+    private static final int LATITUDE          = PROPERTY1;
+    private static final int LONGITUDE          = PROPERTY2;
+    private static final int ALTITUDE          = PROPERTY3;
+    private static final int ACCURACY          = PROPERTY4;
+
+    //Group Speed
+    private static final int SPEED          = PROPERTY1;
+
+    //Group Energy
+    private static final int BATTERY_LEVEL          = PROPERTY2;
+
+    //Group Acceleration (Impact)
+    private static final int IMPACT          = PROPERTY4;
+
+    //Group Environment
+    private static final int TEMPERATURE          = PROPERTY1;
+    private static final int HUMIDITY          = PROPERTY2;
+    private static final int PRESSURE          = PROPERTY4;
 
     /**
      * Obtain Location objects from the events array
@@ -224,6 +263,209 @@ public class ThingSee {
 
         return coordinates;
     }
+
+
+    /*
+
+    ****************************************
+    *
+    * The following methods will create data streams for each type of sensor data
+    *
+    *
+
+     */
+
+    public TimeStream<LocationData> getLocationStream(JSONArray events) throws Exception {
+        TimeStream<LocationData> stream = new TimeStream<>();
+
+        try {
+            for (int i = 0; i < events.length(); i++) {
+                JSONObject event = events.getJSONObject(i);
+                LocationData data = (LocationData)getEventData(event, LocationData.class);
+                if (data != null)
+                    stream.addSample(data);
+            }
+        } catch (Exception e) {
+            throw new Exception("No data");
+        }
+
+        return stream;
+    }
+
+    public TimeStream<ImpactData> getImpactStream(JSONArray events) throws Exception {
+        TimeStream<ImpactData> stream = new TimeStream<>();
+
+        try {
+            for (int i = 0; i < events.length(); i++) {
+                JSONObject event = events.getJSONObject(i);
+                ImpactData data = (ImpactData)getEventData(event, ImpactData.class);
+                if (data != null)
+                    stream.addSample(data);
+            }
+        } catch (Exception e) {
+            throw new Exception("No data");
+        }
+
+        return stream;
+    }
+
+    public TimeStream<BatteryData> getBatteryStream(JSONArray events) throws Exception {
+        TimeStream<BatteryData> stream = new TimeStream<>();
+
+        try {
+            for (int i = 0; i < events.length(); i++) {
+                JSONObject event = events.getJSONObject(i);
+                BatteryData data = (BatteryData)getEventData(event, BatteryData.class);
+                if (data != null)
+                    stream.addSample(data);
+            }
+        } catch (Exception e) {
+            throw new Exception("No data");
+        }
+
+        return stream;
+    }
+
+    public TimeStream<PressureData> getPressureStream(JSONArray events) throws Exception {
+        TimeStream<PressureData> stream = new TimeStream<>();
+
+        try {
+            for (int i = 0; i < events.length(); i++) {
+                JSONObject event = events.getJSONObject(i);
+                PressureData data = (PressureData)getEventData(event, PressureData.class);
+                if (data != null)
+                    stream.addSample(data);
+            }
+        } catch (Exception e) {
+            throw new Exception("No data");
+        }
+
+        return stream;
+    }
+
+    public TimeStream<SpeedData> getSpeedStream(JSONArray events) throws Exception {
+        TimeStream<SpeedData> stream = new TimeStream<>();
+
+        try {
+            for (int i = 0; i < events.length(); i++) {
+                JSONObject event = events.getJSONObject(i);
+                SpeedData data = (SpeedData)getEventData(event, SpeedData.class);
+                if (data != null)
+                    stream.addSample(data);
+            }
+        } catch (Exception e) {
+            throw new Exception("No data");
+        }
+
+        return stream;
+    }
+
+    public TimeStream<TemperatureData> getTemperatureStream(JSONArray events) throws Exception {
+        TimeStream<TemperatureData> stream = new TimeStream<>();
+
+        try {
+            for (int i = 0; i < events.length(); i++) {
+                JSONObject event = events.getJSONObject(i);
+                TemperatureData data = (TemperatureData)getEventData(event, TemperatureData.class);
+                if (data != null)
+                    stream.addSample(data);
+            }
+        } catch (Exception e) {
+            throw new Exception("No data");
+        }
+
+        return stream;
+    }
+
+    private DataWithTime getEventData(JSONObject event, Class<?> type) throws Exception {
+
+        DataWithTime data = null;
+
+        try {
+            Double latitude = null, longitude = null, temperature = null,
+                    pressure = null, impact = null, speed = null, battery = null;
+
+
+                double time = event.getLong("timestamp");
+                JSONArray senses = event.getJSONObject("cause").getJSONArray("senses");
+                for (int j = 0; j < senses.length(); j++) {
+                    JSONObject sense   = senses.getJSONObject(j);
+                    int        senseID = Integer.decode(sense.getString("sId"));
+                    double     value   = sense.getDouble("val");
+
+                    switch (senseID) {
+                        case GROUP_LOCATION | LATITUDE:
+                            latitude = value;
+                            break;
+
+                        case GROUP_LOCATION | LONGITUDE:
+                            longitude = value;
+                            break;
+
+                        case GROUP_ENVIRONMENT | TEMPERATURE:
+                            temperature = value;
+                            break;
+
+                        case GROUP_ENVIRONMENT | PRESSURE:
+                            pressure = value;
+                            break;
+
+
+                        case GROUP_ACCELERATION | IMPACT:
+                            impact = value;
+                            break;
+
+                        case GROUP_SPEED | SPEED:
+                            speed = value;
+                            break;
+
+                        case GROUP_ENERGY | BATTERY_LEVEL:
+                            battery = value;
+                            break;
+                        }
+
+                    }
+
+                    //Create the appopriate Data depending on the requested type
+                    if (type == LocationData.class && latitude != null && longitude != null){
+                        LocationData loc = new LocationData();
+                        loc.setLongitude(longitude);
+                        loc.setLatitude(latitude);
+                        data = loc;
+                    } else if (type == ImpactData.class && impact != null){
+                        ImpactData imp = new ImpactData();
+                        imp.setImpact(impact);
+                        data = imp;
+                    } else if (type == BatteryData.class && battery != null) {
+                        BatteryData bat = new BatteryData();
+                        bat.setBattery(battery);
+                        data = bat;
+                    } else if (type == TemperatureData.class && temperature != null) {
+                        TemperatureData temp = new TemperatureData();
+                        temp.setTemperature(temperature);
+                        data = temp;
+                    }else if (type == PressureData.class && pressure != null) {
+                        PressureData p = new PressureData();
+                        p.setPressure(battery);
+                        data = p;
+                    }else if (type == SpeedData.class && speed != null) {
+                        SpeedData sp = new SpeedData();
+                        sp.setSpeed(battery);
+                        data = sp;
+                    }
+
+                    //Finally set the timestamp
+                    if (data != null)
+                        data.setTime(time);
+
+        } catch (Exception e) {
+            throw new Exception("Error in retrieving data");
+        }
+
+        return data;
+    }
+
+
 
     @Override
     public String toString() {
