@@ -1,13 +1,131 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.manuel.thingseedemo.History">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+
+    <RelativeLayout
+        android:id="@+id/topLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/infoText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:layout_margin="10dp"
+            android:text="Track History of your device over specific time." />
+
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_below="@+id/infoText"
+            android:layout_centerHorizontal="true"
+            android:text="From" />
+
+        <ImageButton
+            android:id="@+id/FdatePicker"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/textView1"
+            android:background="@drawable/side_nav_bar"
+            android:src="@android:drawable/ic_menu_my_calendar" />
+
+        <TextView
+            android:id="@+id/Fdate"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_below="@id/textView1"
+            android:gravity="center"
+            android:hint="Enter date"
+            android:layout_toRightOf="@id/FdatePicker" />
+
+        <ImageButton
+            android:id="@+id/FtimePicker"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/FdatePicker"
+            android:src="@android:drawable/ic_lock_idle_alarm" />
+
+        <TextView
+            android:id="@+id/Ftime"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/Fdate"
+            android:gravity="center"
+            android:hint="Enter time"
+            android:layout_toRightOf="@+id/FtimePicker" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textStyle="bold"
+            android:text="Until" />
+
+        <ImageButton
+            android:id="@+id/UdatePicker"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/textView2"
+            android:background="@drawable/side_nav_bar"
+            android:src="@android:drawable/ic_menu_my_calendar" />
+
+        <TextView
+            android:id="@+id/Udate"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_below="@id/textView2"
+            android:gravity="center"
+            android:hint="Enter date"
+            android:layout_toRightOf="@+id/UdatePicker"/>
+
+        <ImageButton
+            android:id="@+id/UtimePicker"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_below="@id/UdatePicker"
+            android:src="@android:drawable/ic_lock_idle_alarm" />
+
+        <TextView
+            android:id="@+id/Utime"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_below="@id/Udate"
+            android:gravity="center"
+            android:hint="Enter time"
+            android:layout_toRightOf="@+id/UtimePicker"/>
+
+        <Button
+            android:id="@+id/historyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/Utime"
+            android:layout_margin="10dp"
+            android:text="Get History"/>
+
+
+    </RelativeLayout>
+
+
 
 </FrameLayout>

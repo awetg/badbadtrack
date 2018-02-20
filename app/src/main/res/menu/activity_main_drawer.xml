@@ -14,7 +14,7 @@
             android:title="Logs" />
         <item
             android:id="@+id/history"
-            android:icon="@drawable/icon_build"
+            android:icon="@drawable/icon_history"
             android:title="History" />
         <item
             android:id="@+id/settings"
