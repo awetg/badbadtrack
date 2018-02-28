@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.example.manuel.thingseedemo.fragments.History;
 import com.example.manuel.thingseedemo.fragments.Logs;
 import com.example.manuel.thingseedemo.fragments.Map;
+import com.example.manuel.thingseedemo.fragments.Track;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -109,6 +110,10 @@ private NavigationView navigationView;
 
             case R.id.logs:
                 fragment = new Logs();
+                break;
+
+            case R.id.track:
+                fragment = new Track();
                 break;
 
             case R.id.history:

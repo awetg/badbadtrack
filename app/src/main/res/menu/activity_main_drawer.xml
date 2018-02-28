@@ -13,6 +13,10 @@
             android:icon="@drawable/icon_logs"
             android:title="Logs" />
         <item
+            android:id="@+id/track"
+            android:icon="@drawable/icon_history"
+            android:title="Track" />
+        <item
             android:id="@+id/history"
             android:icon="@drawable/icon_history"
             android:title="History" />
