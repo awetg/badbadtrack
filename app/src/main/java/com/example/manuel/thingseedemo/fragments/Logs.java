@@ -197,7 +197,6 @@ public class Logs extends Fragment implements View.OnClickListener {
                 // fields for longitude, latitude and time when the position was fixed
                 for (int i = 0; i < coordinates.size(); i++) {
                     Location loc = coordinates.get(i);
-
                     positions[i] = (new Date(loc.getTime())) +
                             " (" + loc.getLatitude() + "," +
                             loc.getLongitude() + ")"; //coordinates.get(i).toString();

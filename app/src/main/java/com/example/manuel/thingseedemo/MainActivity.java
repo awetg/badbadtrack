@@ -12,6 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.manuel.thingseedemo.fragments.About;
+import com.example.manuel.thingseedemo.fragments.Help;
 import com.example.manuel.thingseedemo.fragments.History;
 import com.example.manuel.thingseedemo.fragments.Logs;
 import com.example.manuel.thingseedemo.fragments.Map;
@@ -84,7 +86,13 @@ private NavigationView navigationView;
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.help) {
+            Fragment fragment = new Help();
+            android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragmentLoader,fragment);
+            fragmentTransaction.commit();
+
+            setTitle(item.getTitle());
             return true;
         }
 
@@ -124,10 +132,8 @@ private NavigationView navigationView;
                 fragment = new Settings();
                 break;
 
-            case R.id.share:
-                break;
-
-            case R.id.nav_send:
+            case R.id.about:
+                fragment = new About();
                 break;
 
         }
