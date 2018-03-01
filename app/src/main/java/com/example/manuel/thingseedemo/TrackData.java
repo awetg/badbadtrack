@@ -29,7 +29,7 @@ public class TrackData {
 
     boolean initialized = false;
 
-    void start(long timestamp, long outOfBoundMarginTime){
+    public void start(long timestamp, long outOfBoundMarginTime){
         clear();
         startTimestamp = timestamp;
         currentTimestamp = timestamp;
@@ -46,7 +46,7 @@ public class TrackData {
 
     }
 
-    void start(long outOfBoundMarginTime){
+    public void start(long outOfBoundMarginTime){
         clear();
         startTimestamp = 0;
         currentTimestamp = 0;
@@ -294,5 +294,4 @@ public class TrackData {
             return temperature;
         }
     }
-
 }

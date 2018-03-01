@@ -1,4 +1,4 @@
-package com.example.manuel.thingseedemo;
+package com.example.manuel.thingseedemo.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,6 +24,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.manuel.thingseedemo.R;
+import com.example.manuel.thingseedemo.ThingSee;
+import com.example.manuel.thingseedemo.TrackData;
+import com.example.manuel.thingseedemo.DataRecorder;
 
 import org.json.JSONArray;
 import org.w3c.dom.Text;
@@ -172,9 +177,9 @@ public class Logs extends Fragment {
 
         Double temperature, speed, impact, pressure;
         temperature = currentData.getTemperature();
-        speed = currentData.getBattery();
-        impact = currentData.getImpact();
-        pressure = currentData.getDistance();
+        speed = currentData.getImpact();
+        impact = currentData.getDistance();
+        pressure = currentData.getBattery();
 
         Log.d("INFO", "Temperature is null: " + (temperature == null));
 
@@ -273,83 +278,4 @@ public class Logs extends Fragment {
         alertDialog.show();
     }
 
-
-
-
-
-    /* This class communicates with the ThingSee client on a separate thread (background processing)
-     * so that it does not slow down the user interface (UI)
-     */
-   /* private class TalkToThingsee extends AsyncTask<String, Integer, String> {
-        //List<Location> coordinates = new ArrayList<Location>();
-        ThingSee       thingsee;
-
-        @Override
-        protected String doInBackground(String... params) {
-            String result = "NOT OK";
-
-            try {
-                if (thingsee == null)
-                    thingsee = new ThingSee(username, password);
-
-                //JSONArray events = thingsee.Events(thingsee.Devices(), MAXPOSITIONS);
-                //System.out.println(events);
-                //data.initFromThingSee(thingsee, curTimestamp - INSTANT_MARGIN, curTimestamp + INSTANT_MARGIN);
-                data.recordMore(thingsee, MAXEVENTS);
-                //coordinates = thingsee.getPath(events);
-
-//                for (Location coordinate: coordinates)
-//                    System.out.println(coordinate);
-                result = "OK";
-            } catch(Exception e) {
-                Log.d("NET", "Communication error: " + e.getMessage());
-            }
-
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            // check that the background communication with the client was succesfull
-            if (result.equals("OK")) {
-                // now the coordinates variable has those coordinates
-                // elements of these coordinates is the Location object who has
-                // fields for longitude, latitude and time when the position was fixed
-
-                long curTimestamp = startTimestamp + (System.currentTimeMillis() - realStartTimestamp);
-
-                //Get sensor data from 5 seconds ago
-                currentData = data.getAllAtTime(curTimestamp - 5000);
-
-                Double temperature, speed, impact, pressure;
-                temperature = currentData.getTemperature();
-                speed = currentData.getSpeed();
-                impact = currentData.getImpact();
-                pressure = currentData.getPressure();
-                if (temperature != null)
-                    ((TextView) myView.findViewById(R.id.temperature)).setText(Double.toString(temperature));
-                if (speed != null)
-                    ((TextView) myView.findViewById(R.id.velocity)).setText(Double.toString(speed));
-                if (impact != null)
-                    ((TextView) myView.findViewById(R.id.impact)).setText(Double.toString(impact));
-                if (pressure != null)
-                ((TextView) myView.findViewById(R.id.pressure)).setText(Double.toString(pressure));
-
-
-            } else {
-                // no, tell that to the user and ask a new username/password pair
-                //positions[0] = getResources().getString(R.string.no_connection);
-                //queryDialog(getActivity(), getResources().getString(R.string.info_prompt));
-            }
-            //myAdapter.notifyDataSetChanged();
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {}
-    }*/
 }

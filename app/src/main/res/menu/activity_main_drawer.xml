@@ -13,6 +13,10 @@
             android:icon="@drawable/icon_logs"
             android:title="Logs" />
         <item
+            android:id="@+id/track"
+            android:icon="@drawable/icon_history"
+            android:title="Track" />
+        <item
             android:id="@+id/history"
             android:icon="@drawable/icon_history"
             android:title="History" />
@@ -25,13 +29,9 @@
     <item android:title="More">
         <menu>
             <item
-                android:id="@+id/share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:id="@+id/about"
+                android:icon="@drawable/icon_about"
+                android:title="About" />
         </menu>
     </item>
 

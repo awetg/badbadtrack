@@ -47,7 +47,7 @@ public class ThingSee {
      * @param passwd     User's password
      * @throws Exception Gives an exception with text information if there was an error
      */
-    ThingSee(String email, String passwd) throws Exception {
+    public ThingSee(String email, String passwd) throws Exception {
         JSONObject param = new JSONObject();
 
         Log.d("INFO", "ThingSee trying to log in with " + email + " " + passwd);

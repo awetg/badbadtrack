@@ -12,7 +12,7 @@ import android.widget.TextView;
  * Created by manuel on 2/23/18.
  */
 
-class DataRecorder {
+public class DataRecorder {
     //private static final int    MAXEVENTS = 10;
     //private static final int    REQUEST_DELAY = 2000;
     public static final int     DATA_UPDATED = 2;
