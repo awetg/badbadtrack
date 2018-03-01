@@ -8,13 +8,13 @@ import android.support.annotation.NonNull;
 
 public abstract class DataWithTime implements Comparable {
 
-    double time;
+    long time;
 
-    public double getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(double time) {
+    public void setTime(long time) {
         this.time = time;
     }
 

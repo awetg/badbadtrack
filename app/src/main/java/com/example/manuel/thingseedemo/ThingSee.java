@@ -23,6 +23,8 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
+
 import org.json.*;
 
 public class ThingSee {
@@ -33,6 +35,7 @@ public class ThingSee {
     private String        accountAuthUuid;
     private String        accountAuthToken;
     private Boolean       fConnection;
+    private Boolean       isFake = false;
 
     /**
      * Authenticates the user
@@ -47,12 +50,16 @@ public class ThingSee {
     ThingSee(String email, String passwd) throws Exception {
         JSONObject param = new JSONObject();
 
+        Log.d("INFO", "ThingSee trying to log in with " + email + " " + passwd);
+
         param.put("email", email);
         param.put("password", passwd);
 
         JSONObject resp = getThingSeeObject(param, "/accounts/login");
         accountAuthUuid = resp.getString("accountAuthUuid");
         accountAuthToken = resp.getString("accountAuthToken");
+
+        Log.d("INFO", "ThingSee account log in " + email + " " + passwd + " " + accountAuthUuid);
     }
 
     /**
@@ -73,7 +80,9 @@ public class ThingSee {
 
         fConnection = false;
         try {
+            Log.d("NET", "Trying to connect to " + url + path);
             connection = new URL(url + path).openConnection();
+            Log.d("NET", "Connection is null:" + (connection == null));
             connection.setRequestProperty("Accept-Charset", charset);
             connection.setRequestProperty("Content-Type", "application/json;charset=" + charset);
             if (accountAuthToken != null)
@@ -81,13 +90,17 @@ public class ThingSee {
 
             // send a request (if needed)
             if (request != null) {
+                Log.d("NET", "Sending request");
                 connection.setDoOutput(true);   // Triggers HTTP POST request
+                Log.d("NET", "Output enabled, connection is null: " + (connection == null));
                 OutputStream output = connection.getOutputStream();
+                Log.d("NET", "Output stream is null: " + (output == null));
                 output.write(request.toString().getBytes(charset));
             }
 
             // wait for the reply
             response = connection.getInputStream();
+            Log.d("NET", "Response is null:" + (response == null));
             reader = new BufferedReader(new InputStreamReader(response));
             StringBuilder out = new StringBuilder();
             String line;
@@ -97,15 +110,24 @@ public class ThingSee {
 
             //System.out.println("Responce: " + out.toString());
             resp = new JSONObject(out.toString());
+            Log.d("NET", "Response string built");
             fConnection = true;
-        } finally {
+        } catch (Exception ex) {
+            Log.d("NET", "Error " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        finally {
             // ensure that streams are closed in all situations
             try {
                 if (response != null)
                     response.close();
                 if (reader != null)
                     reader.close();
-            } catch (IOException ioe) {}
+
+                Log.d("NET", "Stream closed");
+            } catch (IOException ioe) {
+                Log.d("NET", "Error " + ioe.getMessage());
+            }
         }
 
         return (resp);
@@ -159,6 +181,23 @@ public class ThingSee {
         return (events);
     }
 
+    public JSONArray Events(JSONObject device, long start) throws Exception {
+        JSONObject resp;
+        JSONArray  events;
+
+        try {
+            resp = getThingSeeObject(null, "/events/" + device.getString("uuid") + "?type=sense&start=" + start);
+            events  = (JSONArray)resp.get("events");
+            Log.d("INFO", "GET request to /events/" + device.getString("uuid") + "?type=sense&start=" + start );
+        } catch (Exception e) {
+            Log.d("THINGSEE", "ThingseeEvents error " + e);
+            throw new Exception("No events");
+        }
+
+        return (events);
+    }
+
+
     public JSONArray Events(JSONObject device, int limit) throws Exception {
         JSONObject resp;
         JSONArray  events;
@@ -211,6 +250,16 @@ public class ThingSee {
     private static final int TEMPERATURE          = PROPERTY1;
     private static final int HUMIDITY          = PROPERTY2;
     private static final int PRESSURE          = PROPERTY4;
+
+
+    //Public Enum for sensor type
+    public static final int LOCATION_DATA = 1;
+    public static final int SPEED_DATA = 2;
+    public static final int PRESSURE_DATA = 3;
+    public static final int BATTERY_DATA = 4;
+    public static final int TEMPERATURE_DATA = 5;
+    public static final int IMPACT_DATA = 6;
+
 
     /**
      * Obtain Location objects from the events array
@@ -275,118 +324,56 @@ public class ThingSee {
 
      */
 
-    public TimeStream<LocationData> getLocationStream(JSONArray events) throws Exception {
-        TimeStream<LocationData> stream = new TimeStream<>();
+    public TimeStream<LocationData> getLocationStream(JSONArray events, long outOfBoundMarginTime) throws Exception {
+        TimeStream<LocationData> stream = new TimeStream<>(outOfBoundMarginTime);
 
         try {
             for (int i = 0; i < events.length(); i++) {
                 JSONObject event = events.getJSONObject(i);
-                LocationData data = (LocationData)getEventData(event, LocationData.class);
+                LocationData data = (LocationData)getEventData(event, LOCATION_DATA);
                 if (data != null)
                     stream.addSample(data);
             }
         } catch (Exception e) {
-            throw new Exception("No data");
+            return stream;
         }
 
         return stream;
     }
 
-    public TimeStream<ImpactData> getImpactStream(JSONArray events) throws Exception {
-        TimeStream<ImpactData> stream = new TimeStream<>();
+    /**
+    @type ThingSee.TEMPERATURE_DATA, ThingSee.IMPACT_DATA, ThingSee.PRESSURE_DATA, ThingSee.BATTERY_DATA, ThingSee.SPEED_DATA,
+     **/
+    public TimeStream<ScalarData> getScalarStream(JSONArray events, int type, long outOfBoundMarginTime) throws Exception {
+        TimeStream<ScalarData> stream = new TimeStream<>(outOfBoundMarginTime);
 
         try {
             for (int i = 0; i < events.length(); i++) {
                 JSONObject event = events.getJSONObject(i);
-                ImpactData data = (ImpactData)getEventData(event, ImpactData.class);
+                ScalarData data = (ScalarData)getEventData(event, type);
                 if (data != null)
                     stream.addSample(data);
             }
         } catch (Exception e) {
-            throw new Exception("No data");
+            return stream;
         }
 
         return stream;
     }
 
-    public TimeStream<BatteryData> getBatteryStream(JSONArray events) throws Exception {
-        TimeStream<BatteryData> stream = new TimeStream<>();
 
-        try {
-            for (int i = 0; i < events.length(); i++) {
-                JSONObject event = events.getJSONObject(i);
-                BatteryData data = (BatteryData)getEventData(event, BatteryData.class);
-                if (data != null)
-                    stream.addSample(data);
-            }
-        } catch (Exception e) {
-            throw new Exception("No data");
-        }
-
-        return stream;
-    }
-
-    public TimeStream<PressureData> getPressureStream(JSONArray events) throws Exception {
-        TimeStream<PressureData> stream = new TimeStream<>();
-
-        try {
-            for (int i = 0; i < events.length(); i++) {
-                JSONObject event = events.getJSONObject(i);
-                PressureData data = (PressureData)getEventData(event, PressureData.class);
-                if (data != null)
-                    stream.addSample(data);
-            }
-        } catch (Exception e) {
-            throw new Exception("No data");
-        }
-
-        return stream;
-    }
-
-    public TimeStream<SpeedData> getSpeedStream(JSONArray events) throws Exception {
-        TimeStream<SpeedData> stream = new TimeStream<>();
-
-        try {
-            for (int i = 0; i < events.length(); i++) {
-                JSONObject event = events.getJSONObject(i);
-                SpeedData data = (SpeedData)getEventData(event, SpeedData.class);
-                if (data != null)
-                    stream.addSample(data);
-            }
-        } catch (Exception e) {
-            throw new Exception("No data");
-        }
-
-        return stream;
-    }
-
-    public TimeStream<TemperatureData> getTemperatureStream(JSONArray events) throws Exception {
-        TimeStream<TemperatureData> stream = new TimeStream<>();
-
-        try {
-            for (int i = 0; i < events.length(); i++) {
-                JSONObject event = events.getJSONObject(i);
-                TemperatureData data = (TemperatureData)getEventData(event, TemperatureData.class);
-                if (data != null)
-                    stream.addSample(data);
-            }
-        } catch (Exception e) {
-            throw new Exception("No data");
-        }
-
-        return stream;
-    }
-
-    private DataWithTime getEventData(JSONObject event, Class<?> type) throws Exception {
+    private DataWithTime getEventData(JSONObject event, int type) throws Exception {
 
         DataWithTime data = null;
 
+        if (isFake)
+            return getEventFakeData(type);
+
         try {
-            Double latitude = null, longitude = null, temperature = null,
+            Double latitude = null, longitude = null, altitude = null, temperature = null,
                     pressure = null, impact = null, speed = null, battery = null;
 
-
-                double time = event.getLong("timestamp");
+                long time = event.getLong("timestamp");
                 JSONArray senses = event.getJSONObject("cause").getJSONArray("senses");
                 for (int j = 0; j < senses.length(); j++) {
                     JSONObject sense   = senses.getJSONObject(j);
@@ -400,6 +387,10 @@ public class ThingSee {
 
                         case GROUP_LOCATION | LONGITUDE:
                             longitude = value;
+                            break;
+
+                        case GROUP_LOCATION | ALTITUDE:
+                            altitude = value;
                             break;
 
                         case GROUP_ENVIRONMENT | TEMPERATURE:
@@ -427,30 +418,34 @@ public class ThingSee {
                     }
 
                     //Create the appopriate Data depending on the requested type
-                    if (type == LocationData.class && latitude != null && longitude != null){
+                    if (type == LOCATION_DATA && latitude != null && longitude != null){
                         LocationData loc = new LocationData();
                         loc.setLongitude(longitude);
                         loc.setLatitude(latitude);
+                        if (altitude == null)
+                            altitude = 0.0;
+                        loc.setAltitude(altitude);
                         data = loc;
-                    } else if (type == ImpactData.class && impact != null){
-                        ImpactData imp = new ImpactData();
-                        imp.setImpact(impact);
+                    } else if (type == IMPACT_DATA && impact != null){
+                        ScalarData imp = new ScalarData();
+                        imp.setValue(impact);
                         data = imp;
-                    } else if (type == BatteryData.class && battery != null) {
-                        BatteryData bat = new BatteryData();
-                        bat.setBattery(battery);
+                    } else if (type == BATTERY_DATA && battery != null) {
+                        ScalarData bat = new ScalarData();
+                        bat.setValue(battery);
                         data = bat;
-                    } else if (type == TemperatureData.class && temperature != null) {
-                        TemperatureData temp = new TemperatureData();
-                        temp.setTemperature(temperature);
+                    } else if (type == TEMPERATURE_DATA && temperature != null) {
+                        ScalarData temp = new ScalarData();
+                        temp.setValue(temperature);
+                        Log.d("TempData", "Got temperature data " + temperature);
                         data = temp;
-                    }else if (type == PressureData.class && pressure != null) {
-                        PressureData p = new PressureData();
-                        p.setPressure(battery);
+                    }else if (type == PRESSURE_DATA && pressure != null) {
+                        ScalarData p = new ScalarData();
+                        p.setValue(pressure);
                         data = p;
-                    }else if (type == SpeedData.class && speed != null) {
-                        SpeedData sp = new SpeedData();
-                        sp.setSpeed(battery);
+                    }else if (type == SPEED_DATA && speed != null) {
+                        ScalarData sp = new ScalarData();
+                        sp.setValue(speed);
                         data = sp;
                     }
 
@@ -466,6 +461,72 @@ public class ThingSee {
     }
 
 
+    private DataWithTime getEventFakeData(int type) throws Exception {
+
+        DataWithTime data = null;
+
+        Double latitude = null, longitude = null, altitude = null, temperature = null,
+                pressure = null, impact = null, speed = null, battery = null;
+
+        Random rnd = new Random();
+
+        latitude = rnd.nextDouble()/100000 + 60;
+        longitude = rnd.nextDouble()/100000 + 25;
+        altitude = rnd.nextDouble() * 10 + 100;
+        impact = rnd.nextDouble() + 1;
+        speed = rnd.nextDouble() * 10;
+        battery = 89.0;
+        temperature = rnd.nextDouble()*3 + 20;
+        pressure = rnd.nextDouble()*20 + 1000;
+
+
+        if (type == LOCATION_DATA && latitude != null && longitude != null){
+            LocationData loc = new LocationData();
+            loc.setLongitude(longitude);
+            loc.setLatitude(latitude);
+            if (altitude == null)
+                altitude = 0.0;
+            loc.setAltitude(altitude);
+            data = loc;
+        } else if (type == IMPACT_DATA && impact != null){
+            ScalarData imp = new ScalarData();
+            imp.setValue(impact);
+            data = imp;
+        } else if (type == BATTERY_DATA && battery != null) {
+            ScalarData bat = new ScalarData();
+            bat.setValue(battery);
+            data = bat;
+        } else if (type == TEMPERATURE_DATA && temperature != null) {
+            ScalarData temp = new ScalarData();
+            temp.setValue(temperature);
+            Log.d("TempData", "Got temperature data " + temperature);
+            data = temp;
+        }else if (type == PRESSURE_DATA && pressure != null) {
+            ScalarData p = new ScalarData();
+            p.setValue(pressure);
+            data = p;
+        }else if (type == SPEED_DATA && speed != null) {
+            ScalarData sp = new ScalarData();
+            sp.setValue(speed);
+            data = sp;
+        }
+
+        long time = System.currentTimeMillis();
+
+        if (data != null)
+            data.setTime(time);
+
+        return data;
+    }
+
+
+    public void setFake(){
+        isFake = true;
+    }
+
+    public void setReal(){
+        isFake = false;
+    }
 
     @Override
     public String toString() {
