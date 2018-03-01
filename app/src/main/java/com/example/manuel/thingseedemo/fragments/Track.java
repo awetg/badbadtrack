@@ -8,8 +8,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -17,13 +15,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.manuel.thingseedemo.R;
+import com.example.manuel.thingseedemo.util.CustomAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -55,7 +53,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
     TextView trackNameText;
 
     String trackName;
-    ArrayAdapter<String> myAdapter;
+    CustomAdapter myAdapter;
     List<String> list;
 
     public Track() {
@@ -76,8 +74,8 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
         } else if (getMode.equals(addMode)) {
 
-            myView = inflater.inflate(R.layout.custom_list, container, false);
-            getViewItems(R.layout.custom_list);
+            myView = inflater.inflate(R.layout.current_record, container, false);
+            getViewItems(R.layout.current_record);
 
         }
 
@@ -135,8 +133,8 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
                                 changeMode(addMode);
                                 addToTrackList();
-                                setView(R.layout.custom_list);
-                                getViewItems(R.layout.custom_list);
+                                setView(R.layout.current_record);
+                                getViewItems(R.layout.current_record);
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -164,7 +162,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                 addButton.setOnClickListener(this);
                 getTrackList();
                 break;
-            case R.layout.custom_list:
+            case R.layout.current_record:
                 trackNameText = myView.findViewById(R.id.trackNameText);
                 endButton = myView.findViewById(R.id.endButton);
                 endButton.setOnClickListener(this);
@@ -214,7 +212,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         Set<String> trackSet = sharedPreferences.getStringSet(allTrack, null);
         if (trackSet != null) {
             list = new ArrayList<String>(trackSet);
-            myAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, list);
+            myAdapter = new CustomAdapter(getContext(), R.layout.custom_list_item, list);
             listView.setAdapter(myAdapter);
             registerForContextMenu(listView);
             listView.setOnItemClickListener(this);

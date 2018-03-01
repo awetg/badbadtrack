@@ -19,7 +19,6 @@
         android:textStyle="bold" />
 
 
-
     <ListView
         android:id="@+id/trackList"
         android:layout_width="match_parent"
