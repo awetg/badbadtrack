@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.manuel.thingseedemo.util.CalculusTools;
+import com.example.manuel.thingseedemo.util.TimeStreamMapToScalar;
 
 import org.json.JSONArray;
 

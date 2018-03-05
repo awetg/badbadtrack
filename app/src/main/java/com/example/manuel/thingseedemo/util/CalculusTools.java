@@ -1,7 +1,6 @@
 package com.example.manuel.thingseedemo.util;
 
 import com.example.manuel.thingseedemo.LocationData;
-import com.example.manuel.thingseedemo.util.Integral;
 
 /**
  * Created by manuel on 2/28/18.

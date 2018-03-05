@@ -1,42 +1,26 @@
 package com.example.manuel.thingseedemo.fragments;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.manuel.thingseedemo.R;
-import com.example.manuel.thingseedemo.ThingSee;
 import com.example.manuel.thingseedemo.TrackData;
 import com.example.manuel.thingseedemo.DataRecorder;
 
-import org.json.JSONArray;
-import org.w3c.dom.Text;
-
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by awetg on 15.2.2018.
@@ -47,10 +31,10 @@ public class Logs extends Fragment {
 
     private static final int    MAXEVENTS = 10;
     private static final int    REQUEST_DELAY = 2000;
-    private static final long   INSTANT_MARGIN = 500000; //500 seconds window of data
+    private static final long   INSTANT_MARGIN = 500000; //500 seconds window of trackData
     private static final String PREFERENCEID = "Credentials";
 
-    TrackData data = new TrackData();
+    TrackData trackData = new TrackData();
     TrackData.AllDataStructure currentData = null;
 
     DataRecorder recorder;
@@ -61,7 +45,7 @@ public class Logs extends Fragment {
     private View myView;
     private EditText tdate;
     private long startTimestamp = 0;
-    private long realStartTimestamp = 0;
+//    private long realStartTimestamp = 0;
 
     private Handler handler = new Handler(Looper.getMainLooper()){
         @Override
@@ -89,11 +73,10 @@ public class Logs extends Fragment {
         );
 
         tdate = myView.findViewById(R.id.date);
-        long date = System.currentTimeMillis();
-        startTimestamp = date;
-        realStartTimestamp = date;
+        startTimestamp = System.currentTimeMillis();
+//        realStartTimestamp = startTimestamp;
         SimpleDateFormat sdf = new SimpleDateFormat("dd MM yyyy, h:mm a");
-        String dateString = sdf.format(date);
+        String dateString = sdf.format(startTimestamp);
         tdate.setText(dateString);
 
         //handler.postDelayed(runnable, 100);
@@ -139,14 +122,14 @@ public class Logs extends Fragment {
         if (recorder.getLastResultState() != "OK")
             return;
 
-        long curTimestamp = startTimestamp + (System.currentTimeMillis() - realStartTimestamp);
+//        long curTimestamp = startTimestamp + (System.currentTimeMillis() - realStartTimestamp);
 
         //Get sensor data from 5 seconds ago
-        //currentData = data.getAllAtTime(curTimestamp - 5000);
-        //currentData = data.getAllAtTime(data.getCurrentTimestamp());
-        currentData = data.getAllLast();
+        //currentData = trackData.getAllAtTime(curTimestamp - 5000);
+        //currentData = trackData.getAllAtTime(trackData.getCurrentTimestamp());
+        currentData = trackData.getAllLast();
 
-        Log.d("INFO", "Temperature Data contains n. elements: " + data.getTemperatureStream().sampleCount());
+        Log.d("INFO", "Temperature Data contains n. elements: " + trackData.getTemperatureStream().sampleCount());
 
         Double temperature, speed, impact, pressure;
         temperature = currentData.getTemperature();
@@ -188,12 +171,12 @@ public class Logs extends Fragment {
                 thingsee = new ThingSee(username, password);*/
 
             startTimestamp = sdf.parse(tdate.getText().toString()).getTime();
-            realStartTimestamp = System.currentTimeMillis();
+//            realStartTimestamp = System.currentTimeMillis();
         } catch (Exception ex){}
 
-        data.start(10000);
+        trackData.start(10000);
 
-        recorder = new DataRecorder(username, password, data, startTimestamp, REQUEST_DELAY);
+        recorder = new DataRecorder(username, password, trackData, startTimestamp, REQUEST_DELAY);
         recorder.start(handler);
 
         // we make the request to the Thingsee cloud server in backgroud

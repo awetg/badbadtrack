@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="20dp"
-    tools:context="com.example.manuel.thingseedemo.Logs">
+    tools:context="com.example.manuel.thingseedemo.fragments.Logs">
     <EditText
         android:id="@+id/date"
         android:layout_width="match_parent"
