@@ -68,29 +68,29 @@ public class TrackData {
     void recordMore(ThingSee ts){
         try {
             Log.d("INFO", "TrackData fetching events...");
-            JSONArray data = ts.Events(ts.Devices(), currentTimestamp);
+            JSONArray eventData = ts.Events(ts.Devices(), currentTimestamp);
 
             //Fake data
             //ts.setFake();
 
-            Log.d("INFO", "Fetched " + data.length() + " events");
+            Log.d("INFO", "Fetched " + eventData.length() + " events");
 
-            if (data.length() == 0)
+            if (eventData.length() == 0)
                 return;
 
-            long last = data.getJSONObject(data.length()-1).getLong("timestamp");
+            long last = eventData.getJSONObject(eventData.length()-1).getLong("timestamp");
 
-            Log.d("INFO", "Got " + data.length() + " data up to " + last);
+            Log.d("INFO", "Got " + eventData.length() + " data up to " + last);
 
-            TimeStream<LocationData> incomingLocations = ts.getLocationStream(data, outOfBoundMargin);
+            TimeStream<LocationData> incomingLocations = ts.getLocationStream(eventData, outOfBoundMargin);
 
-            TimeStream<ScalarData> incomingTemperatures = ts.getScalarStream(data, ThingSee.TEMPERATURE_DATA, outOfBoundMargin*3);
+            TimeStream<ScalarData> incomingTemperatures = ts.getScalarStream(eventData, ThingSee.TEMPERATURE_DATA, outOfBoundMargin*3);
             Log.d("INFO", "Got " + incomingTemperatures.sampleCount() + " temperatures");
-            pressure.addStream(ts.getScalarStream(data, ThingSee.PRESSURE_DATA, outOfBoundMargin*3));
-            impact.addStream(ts.getScalarStream(data, ThingSee.IMPACT_DATA, outOfBoundMargin));
-            battery.addStream(ts.getScalarStream(data, ThingSee.BATTERY_DATA, outOfBoundMargin*9));
+            pressure.addStream(ts.getScalarStream(eventData, ThingSee.PRESSURE_DATA, outOfBoundMargin*3));
+            impact.addStream(ts.getScalarStream(eventData, ThingSee.IMPACT_DATA, outOfBoundMargin));
+            battery.addStream(ts.getScalarStream(eventData, ThingSee.BATTERY_DATA, outOfBoundMargin*9));
             temperature.addStream(incomingTemperatures);
-            speed.addStream(ts.getScalarStream(data, ThingSee.SPEED_DATA, outOfBoundMargin));
+            speed.addStream(ts.getScalarStream(eventData, ThingSee.SPEED_DATA, outOfBoundMargin));
 
             Log.d("INFO", "Total temperatures " + temperature.sampleCount());
 
