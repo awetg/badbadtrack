@@ -80,8 +80,6 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         }
 
 
-        // Inflate the layout for this fragment
-
         return myView;
     }
 

@@ -1,7 +1,9 @@
 package com.example.manuel.thingseedemo;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
+
+import com.example.manuel.thingseedemo.util.Derivative;
+import com.example.manuel.thingseedemo.util.Integral;
 
 import java.util.ArrayList;
 import java.util.Collections;

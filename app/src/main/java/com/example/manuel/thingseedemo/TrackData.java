@@ -3,9 +3,10 @@ package com.example.manuel.thingseedemo;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.manuel.thingseedemo.util.CalculusTools;
+
 import org.json.JSONArray;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

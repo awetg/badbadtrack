@@ -54,14 +54,12 @@ public class Logs extends Fragment {
     TrackData.AllDataStructure currentData = null;
 
     DataRecorder recorder;
-    ThingSee       thingsee;
 
     private String               username, password;
-    //private String[]             positions = new String[MAXPOSITIONS];
-    private ArrayAdapter<String> myAdapter;
+
 
     private View myView;
-    EditText tdate;
+    private EditText tdate;
     private long startTimestamp = 0;
     private long realStartTimestamp = 0;
 
@@ -73,13 +71,6 @@ public class Logs extends Fragment {
         }
     };
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // initialize the array so that every position has an object (even it is empty string)
-        //for (int i = 0; i < positions.length; i++)
-        //positions[i] = "";
-    }
 
     @Nullable
     @Override
@@ -87,16 +78,6 @@ public class Logs extends Fragment {
         myView = inflater.inflate(R.layout.logs,container,false);
 
 
-
-        // setup the adapter for the array
-        //myAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, positions);
-
-        // then connect it to the list in application's layout
-        //ListView listView = myView.findViewById(R.id.mylist);
-        //listView.setAdapter(myAdapter);
-
-        // setup the button event listener to receive onClick events
-        //myView.findViewById(R.id.mybutton).setOnClickListener(this);
 
         ((Button)myView.findViewById(R.id.getDataButton)).setOnClickListener(
                 new View.OnClickListener() {
@@ -139,24 +120,16 @@ public class Logs extends Fragment {
 
 
 
-//    @Override
-//    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-//        super.onViewCreated(view, savedInstanceState);
-//    }
-
 
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // check that we know username and password for the Thingsee cloud
+        // no need to check if empty, they have already been checked on main activity
         SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, Activity.MODE_PRIVATE);
         username = prefGet.getString("username", "bbbmetropolia@gmail.com");
         password = prefGet.getString("password", "badbadboys0");
-        if (username.length() == 0 || password.length() == 0)
-            // no, ask them from the user
-            queryDialog(getActivity(), getResources().getString(R.string.prompt));
     }
 
     public void getCurrentData() {
@@ -226,56 +199,6 @@ public class Logs extends Fragment {
         // we make the request to the Thingsee cloud server in backgroud
         // (AsyncTask) so that we don't block the UI (to prevent ANR state, Android Not Responding)
         //new Logs.TalkToThingsee().execute("QueryState");
-    }
-
-
-    private void queryDialog(final Context context, String msg) {
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(context);
-        View promptsView = li.inflate(R.layout.credentials_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        final TextView dialogMsg      = promptsView.findViewById(R.id.textViewDialogMsg);
-        final EditText dialogUsername = promptsView.findViewById(R.id.editTextDialogUsername);
-        final EditText dialogPassword = promptsView.findViewById(R.id.editTextDialogPassword);
-
-        dialogMsg.setText(msg);
-        dialogUsername.setText(username);
-        dialogPassword.setText(password);
-
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                // get user input and set it to result
-                                username = dialogUsername.getText().toString();
-                                password = dialogPassword.getText().toString();
-
-                                SharedPreferences prefPut = context .getSharedPreferences(PREFERENCEID, Activity.MODE_PRIVATE);
-                                SharedPreferences.Editor prefEditor = prefPut.edit();
-                                prefEditor.putString("username", username);
-                                prefEditor.putString("password", password);
-                                prefEditor.commit();
-                            }
-                        })
-                .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
     }
 
 }
