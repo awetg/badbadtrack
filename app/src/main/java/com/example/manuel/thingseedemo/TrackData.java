@@ -117,14 +117,14 @@ public class TrackData {
 
             final double finalConstant = constant;
 
-            distance.addStream(
-                    incomingLocations.integrate(CalculusTools.vectorArcDistIntegral).map(new TimeStreamMapToScalar() {
-                        @Override
-                        public double map(Object x) {
-                            return finalConstant + ((ScalarData) x).getValue();
-                        }
-                    })
-            );
+            TimeStream<ScalarData> newDistances = incomingLocations.integrate(CalculusTools.vectorArcDistIntegral).map(new TimeStreamMapToScalar() {
+                @Override
+                public double map(Object x) {
+                    return finalConstant + ((ScalarData) x).getValue();
+                }
+            });
+
+            distance.addStream(newDistances);
 
             location.addStream(incomingLocations);
 
@@ -208,7 +208,7 @@ public class TrackData {
                 distance.getDataAtTime(time));
     }
 
-    public List<AllDataStructure> createSamples(double interval){
+    public List<AllDataStructure> createSamples(long interval){
         ArrayList<AllDataStructure> lst = new ArrayList<>();
         long cur = startTimestamp;
 
