@@ -1,5 +1,10 @@
 package com.example.manuel.thingseedemo;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,20 +14,29 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.manuel.thingseedemo.fragments.About;
 import com.example.manuel.thingseedemo.fragments.Help;
 import com.example.manuel.thingseedemo.fragments.History;
 import com.example.manuel.thingseedemo.fragments.Logs;
 import com.example.manuel.thingseedemo.fragments.Map;
+import com.example.manuel.thingseedemo.fragments.Settings;
 import com.example.manuel.thingseedemo.fragments.Track;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-private NavigationView navigationView;
+    private NavigationView navigationView;
+    private String               username, password;
+    private static final String PREFERENCEID = "Credentials";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +64,20 @@ private NavigationView navigationView;
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View navHeader = navigationView.getHeaderView(0);
+
+        SharedPreferences prefGet = getSharedPreferences(PREFERENCEID, Activity.MODE_PRIVATE);
+        username = prefGet.getString("username", "bbbmetropolia@gmail.com");
+        password = prefGet.getString("password", "badbadboys0");
+        if (username.length() == 0 || password.length() == 0)
+            // no, ask them from the user
+            queryDialog(this, getResources().getString(R.string.prompt));
+
+        TextView accountText = navHeader.findViewById(R.id.accountText);
+        accountText.setText(username);
     }
+
+
 
 
 
@@ -160,5 +187,55 @@ private NavigationView navigationView;
 
 
         return true;
+    }
+
+
+    private void queryDialog(final Context context, String msg) {
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(context);
+        View promptsView = li.inflate(R.layout.credentials_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        final TextView dialogMsg      = promptsView.findViewById(R.id.textViewDialogMsg);
+        final EditText dialogUsername = promptsView.findViewById(R.id.editTextDialogUsername);
+        final EditText dialogPassword = promptsView.findViewById(R.id.editTextDialogPassword);
+
+        dialogMsg.setText(msg);
+        dialogUsername.setText(username);
+        dialogPassword.setText(password);
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                // get user input and set it to result
+                                username = dialogUsername.getText().toString();
+                                password = dialogPassword.getText().toString();
+
+                                SharedPreferences prefPut = context .getSharedPreferences(PREFERENCEID, Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor prefEditor = prefPut.edit();
+                                prefEditor.putString("username", username);
+                                prefEditor.putString("password", password);
+                                prefEditor.commit();
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
     }
 }

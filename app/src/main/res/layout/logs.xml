@@ -3,9 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="20dp"
-    tools:context="com.example.manuel.thingseedemo.Logs">
+    tools:context="com.example.manuel.thingseedemo.fragments.Logs">
     <EditText
         android:id="@+id/date"
         android:layout_width="match_parent"
@@ -13,13 +14,14 @@
         android:gravity="center"
         android:layout_gravity="center_horizontal"
         android:textSize="20dp"
-        android:layout_marginBottom="10dp"
+        android:padding="5dp"
+        android:layout_margin="10dp"
         android:text="Date and time"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
         <TextView
-            android:id="@+id/velocity"
+            android:id="@+id/impact"
             android:layout_width="20dp"
             android:layout_height="120dp"
             android:layout_weight="1"
@@ -30,7 +32,7 @@
             android:textSize="20dp"
             android:textColor="#FFFF"
             android:background="@drawable/back"
-            android:drawableBottom="@drawable/speed"/>
+            android:drawableBottom="@drawable/combat"/>
 
         <TextView
             android:id="@+id/temperature"
@@ -51,7 +53,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:id="@+id/impact"
+            android:id="@+id/velocity"
             android:layout_width="30dp"
             android:layout_height="120dp"
             android:layout_margin="20dp"
@@ -59,11 +61,11 @@
             android:gravity="center"
             android:layout_gravity="center_horizontal"
             android:padding="10dp"
-            android:text="Distance"
+            android:text="velocity"
             android:textColor="#FFFF"
             android:textSize="20dp"
             android:background="@drawable/back"
-            android:drawableBottom="@drawable/distance"/>
+            android:drawableBottom="@drawable/velocity"/>
 
         <TextView
             android:id="@+id/pressure"
@@ -73,12 +75,24 @@
             android:layout_weight="1"
             android:gravity="center"
             android:layout_gravity="center_horizontal"
-            android:text="Battery"
+            android:text="presure"
             android:textColor="#FFFF"
             android:textSize="20dp"
             android:background="@drawable/back"
-            android:drawableBottom="@drawable/humidity"/>
+            android:drawableBottom="@drawable/pressure"/>
+
     </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/simpleSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="#ff69b4"
+        android:indeterminate="true"
+        android:max="200"
+        android:thumb="@drawable/thumb" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -1,4 +1,4 @@
-package com.example.manuel.thingseedemo;
+package com.example.manuel.thingseedemo.util;
 
 /**
  * Created by manuel on 2/28/18.
