@@ -8,6 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:padding="20dp"
+        android:text="Please contact bbbmetropolia.gmail.com if you have any problems." />
 
 </FrameLayout>

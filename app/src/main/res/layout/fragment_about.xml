@@ -8,6 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:padding="20dp"
+        android:text="This app is connected to a IoT deviced called ThingSee, collects data such as temperature, distance, speed, impact and etc. Users can create their own tracks and select the time they would like to collect the data.  "  />
 
 </FrameLayout>

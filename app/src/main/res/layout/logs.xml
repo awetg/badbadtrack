@@ -61,7 +61,7 @@
             android:gravity="center"
             android:layout_gravity="center_horizontal"
             android:padding="10dp"
-            android:text="velocity"
+            android:text="Velocity"
             android:textColor="#FFFF"
             android:textSize="20dp"
             android:background="@drawable/back"
@@ -75,7 +75,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:layout_gravity="center_horizontal"
-            android:text="presure"
+            android:text="Pressure"
             android:textColor="#FFFF"
             android:textSize="20dp"
             android:background="@drawable/back"
@@ -89,10 +89,9 @@
         android:layout_height="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="#ff69b4"
         android:indeterminate="true"
         android:max="200"
-        android:thumb="@drawable/thumb" />
+/>
 
     <LinearLayout
         android:layout_width="match_parent"
