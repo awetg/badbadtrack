@@ -5,12 +5,16 @@ import android.util.Log;
 
 import com.example.manuel.thingseedemo.util.CalculusTools;
 import com.example.manuel.thingseedemo.util.TimeStreamMapToScalar;
+import com.example.manuel.thingseedemo.util.TimestampDateHandler;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -20,7 +24,7 @@ import java.util.List;
 public class TrackData implements Serializable {
 
     private long outOfBoundMargin;
-    private long startTimestamp;
+    private long startTimestamp, firstTimestamp; //Requested (start) and real (first) time of start of the recording
     private long currentTimestamp;
     private TimeStream<LocationData> location;
     private TimeStream<ScalarData> pressure;
@@ -31,10 +35,12 @@ public class TrackData implements Serializable {
     private TimeStream<ScalarData> distance;
 
     boolean initialized = false;
+    boolean empty = true;
 
     public void start(long timestamp, long outOfBoundMarginTime){
         clear();
         startTimestamp = timestamp;
+        firstTimestamp = timestamp;
         currentTimestamp = timestamp;
         outOfBoundMargin = outOfBoundMarginTime;
 
@@ -46,12 +52,14 @@ public class TrackData implements Serializable {
         battery = new TimeStream<>(outOfBoundMargin);
 
         distance = new TimeStream<>(outOfBoundMargin);
+        initialized = true;
 
     }
 
     public void start(long outOfBoundMarginTime){
         clear();
         startTimestamp = 0;
+        firstTimestamp = 0;
         currentTimestamp = 0;
         outOfBoundMargin = outOfBoundMarginTime;
 
@@ -63,35 +71,84 @@ public class TrackData implements Serializable {
         battery = new TimeStream<>(outOfBoundMargin);
 
         distance = new TimeStream<>(outOfBoundMargin);
+        initialized = true;
 
     }
 
     void recordMore(ThingSee ts){
+        final boolean fake = false;
+
         try {
             Log.d("INFO", "TrackData fetching events...");
-            JSONArray eventData = ts.Events(ts.Devices(), currentTimestamp);
+            JSONArray eventData = null;
+            ArrayList<Long> times = new ArrayList<>();
 
-            //Fake data
-            //ts.setFake();
+            if (!fake){
+               eventData = ts.Events(ts.Devices(), currentTimestamp);
+            }
 
-            Log.d("INFO", "Fetched " + eventData.length() + " events");
+            if (fake)
+                ts.setFake();
 
-            if (eventData.length() == 0)
+            Log.d("INFO", "Fetched " + (eventData == null ? 0 : eventData.length()) + " events");
+
+            if (!fake && eventData != null && eventData.length() == 0)
                 return;
 
-            long last = eventData.getJSONObject(eventData.length()-1).getLong("timestamp");
 
-            Log.d("INFO", "Got " + eventData.length() + " data up to " + last);
 
             TimeStream<LocationData> incomingLocations = ts.getLocationStream(eventData, outOfBoundMargin);
-
             TimeStream<ScalarData> incomingTemperatures = ts.getScalarStream(eventData, ThingSee.TEMPERATURE_DATA, outOfBoundMargin*3);
+            TimeStream<ScalarData> incomingPressure = ts.getScalarStream(eventData, ThingSee.PRESSURE_DATA, outOfBoundMargin*3);
+            TimeStream<ScalarData> incomingImpact = ts.getScalarStream(eventData, ThingSee.IMPACT_DATA, outOfBoundMargin);
+            TimeStream<ScalarData> incomingBattery = ts.getScalarStream(eventData, ThingSee.BATTERY_DATA, outOfBoundMargin*9);
+            TimeStream<ScalarData> incomingSpeed = ts.getScalarStream(eventData, ThingSee.SPEED_DATA, outOfBoundMargin);
             Log.d("INFO", "Got " + incomingTemperatures.sampleCount() + " temperatures");
-            pressure.addStream(ts.getScalarStream(eventData, ThingSee.PRESSURE_DATA, outOfBoundMargin*3));
-            impact.addStream(ts.getScalarStream(eventData, ThingSee.IMPACT_DATA, outOfBoundMargin));
-            battery.addStream(ts.getScalarStream(eventData, ThingSee.BATTERY_DATA, outOfBoundMargin*9));
+            pressure.addStream(incomingPressure);
+            impact.addStream(incomingImpact);
+            battery.addStream(incomingBattery);
             temperature.addStream(incomingTemperatures);
-            speed.addStream(ts.getScalarStream(eventData, ThingSee.SPEED_DATA, outOfBoundMargin));
+            speed.addStream(incomingSpeed);
+
+            //ArrayList of all the first and last timestamps of each stream to find the earliest and latest
+            if (incomingBattery.sampleCount() > 0)
+            {times.add(incomingBattery.getLastTimestamp()); times.add(incomingBattery.getFirst().getTime());}
+            if (incomingImpact.sampleCount() > 0)
+            {times.add(incomingImpact.getLastTimestamp()); times.add(incomingImpact.getFirst().getTime());}
+            if (incomingLocations.sampleCount() > 0)
+            {times.add(incomingLocations.getLastTimestamp()); times.add(incomingLocations.getFirst().getTime());}
+            if (incomingPressure.sampleCount() > 0)
+            {times.add(incomingPressure.getLastTimestamp()); times.add(incomingPressure.getFirst().getTime());}
+            if (incomingSpeed.sampleCount() > 0)
+            {times.add(incomingSpeed.getLastTimestamp()); times.add(incomingSpeed.getFirst().getTime());}
+            if (incomingTemperatures.sampleCount() > 0)
+            {times.add(incomingTemperatures.getLastTimestamp()); times.add(incomingTemperatures.getFirst().getTime());}
+
+            if (times.size() < 1)
+                return;
+
+            long first = times.get(0);
+            long last = first;
+
+            for (int i = 0; i < times.size(); i++){
+                long cur = times.get(i);
+                if (cur > last)
+                    last = cur;
+
+                if (cur < first)
+                    first = cur;
+            }
+
+            if (isEmpty()) {
+                firstTimestamp = first;
+                Log.d("TIMESEEK", "Set first timestamp: " + firstTimestamp);
+            }
+
+            Log.d("TIMESEEK", "First fetched: " + TimestampDateHandler.timestampToDate(first));
+            Log.d("TIMESEEK", "Last fetched: " + TimestampDateHandler.timestampToDate(last));
+
+
+            Log.d("INFO", "Got " + (eventData == null ? 0 : eventData.length()) + " data up to " + last);
 
             Log.d("INFO", "Total temperatures " + temperature.sampleCount());
 
@@ -133,10 +190,15 @@ public class TrackData implements Serializable {
             Log.d("INFO", "TrackData.currentTimestamp = " + currentTimestamp);
 
             initialized = true;
+            empty = false;
 
         } catch (Exception ex) {
             Log.e("Error", ex.getMessage());
         }
+    }
+
+    public boolean isInitialized(){
+        return initialized;
     }
 
 
@@ -152,6 +214,18 @@ public class TrackData implements Serializable {
             startTimestamp = 0;
             currentTimestamp = 0;
         }
+    }
+
+    public boolean isEmpty(){
+        return empty;
+    }
+
+    public boolean isNotEmpty(){
+        return !isEmpty();
+    }
+
+    public long getFirstTimestamp(){
+        return firstTimestamp;
     }
 
     public long getStartTimestamp(){

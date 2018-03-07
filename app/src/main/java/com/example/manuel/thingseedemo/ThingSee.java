@@ -328,8 +328,8 @@ public class ThingSee {
         TimeStream<LocationData> stream = new TimeStream<>(outOfBoundMarginTime);
 
         try {
-            for (int i = 0; i < events.length(); i++) {
-                JSONObject event = events.getJSONObject(i);
+            for (int i = 0; i < (isFake ? 10 : events.length()); i++) {
+                JSONObject event = isFake ? null : events.getJSONObject(i);
                 LocationData data = (LocationData)getEventData(event, LOCATION_DATA);
                 if (data != null)
                     stream.addSample(data);
@@ -348,8 +348,8 @@ public class ThingSee {
         TimeStream<ScalarData> stream = new TimeStream<>(outOfBoundMarginTime);
 
         try {
-            for (int i = 0; i < events.length(); i++) {
-                JSONObject event = events.getJSONObject(i);
+            for (int i = 0; i < (isFake ? 10 : events.length()); i++) {
+                JSONObject event = isFake ? null : events.getJSONObject(i);
                 ScalarData data = (ScalarData)getEventData(event, type);
                 if (data != null)
                     stream.addSample(data);

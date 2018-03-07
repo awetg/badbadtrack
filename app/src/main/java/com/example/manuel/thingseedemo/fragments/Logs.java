@@ -14,12 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.manuel.thingseedemo.R;
 import com.example.manuel.thingseedemo.TrackData;
 import com.example.manuel.thingseedemo.DataRecorder;
+import com.example.manuel.thingseedemo.util.TimestampDateHandler;
 
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 
 /**
@@ -29,9 +32,7 @@ import java.text.SimpleDateFormat;
 
 public class Logs extends Fragment {
 
-    private static final int    MAXEVENTS = 10;
     private static final int    REQUEST_DELAY = 2000;
-    private static final long   INSTANT_MARGIN = 500000; //500 seconds window of trackData
     private static final String PREFERENCEID = "Credentials";
 
     TrackData trackData = new TrackData();
@@ -44,6 +45,7 @@ public class Logs extends Fragment {
 
     private View myView;
     private EditText tdate;
+    private SeekBar timeSeekBar;
     private long startTimestamp = 0;
 //    private long realStartTimestamp = 0;
 
@@ -51,7 +53,8 @@ public class Logs extends Fragment {
         @Override
         public void handleMessage(Message msg){
             if (msg.what == DataRecorder.DATA_UPDATED)
-                getCurrentData();
+                //getCurrentData();
+                Log.d("INFO", "Message received from Logs");
         }
     };
 
@@ -73,12 +76,32 @@ public class Logs extends Fragment {
         );
 
         tdate = myView.findViewById(R.id.date);
+        timeSeekBar = myView.findViewById(R.id.mainSeekBar);
+        timeSeekBar.setProgress(0);
         startTimestamp = System.currentTimeMillis();
 //        realStartTimestamp = startTimestamp;
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MM yyyy, h:mm a");
-        String dateString = sdf.format(startTimestamp);
+        String dateString  = TimestampDateHandler.timestampToDate(startTimestamp);
         tdate.setText(dateString);
 
+
+        timeSeekBar.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                        showDataAtTime(progressToTimestamp());
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                }
+        );
         //handler.postDelayed(runnable, 100);
 
         /*tdate.addTextChangedListener(new TextWatcher() {
@@ -101,33 +124,34 @@ public class Logs extends Fragment {
         return myView;
     }
 
+    private long progressToTimestamp(){
+        long timeStart = trackData.getFirstTimestamp();
+        long timeEnd = trackData.getCurrentTimestamp();
+        double progStart = 0;
+        double progEnd = timeSeekBar.getMax();
+        double progress = timeSeekBar.getProgress();
 
+        if (progEnd == progStart)
+            return 0;
 
+        long timeProgress = (long) ((timeEnd - timeStart) * progress / (progEnd - progStart));
+        long timestamp = timeStart + timeProgress;
 
+        Log.d("TIMESEEK", "First: " + timeStart);
+        Log.d("TIMESEEK", "Last: " + timeEnd);
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+        Log.d("TIMESEEK", "Result: " + timestamp);
 
-        // no need to check if empty, they have already been checked on main activity
-        SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, Activity.MODE_PRIVATE);
-        username = prefGet.getString("username", "bbbmetropolia@gmail.com");
-        password = prefGet.getString("password", "badbadboys0");
+        return timestamp == 0 ? 1 : timestamp;
     }
 
-    public void getCurrentData() {
-
-        Log.d("INFO", "Executing post-fetching action");
-
-        if (recorder.getLastResultState() != "OK")
+    public void showDataAtTime(long timestamp){
+        if (!trackData.isInitialized())
             return;
 
-//        long curTimestamp = startTimestamp + (System.currentTimeMillis() - realStartTimestamp);
+        currentData = trackData.getAllAtTime(timestamp);
 
-        //Get sensor data from 5 seconds ago
-        //currentData = trackData.getAllAtTime(curTimestamp - 5000);
-        //currentData = trackData.getAllAtTime(trackData.getCurrentTimestamp());
-        currentData = trackData.getAllLast();
+        tdate.setText(TimestampDateHandler.timestampToDate(timestamp));
 
         Log.d("INFO", "Temperature Data contains n. elements: " + trackData.getTemperatureStream().sampleCount());
 
@@ -137,7 +161,6 @@ public class Logs extends Fragment {
         impact = currentData.getDistance();
         pressure = currentData.getBattery();
 
-        Log.d("INFO", "Temperature is null: " + (temperature == null));
 
         if (temperature != null)
             ((TextView) myView.findViewById(R.id.temperature)).setText(Double.toString(temperature));
@@ -161,20 +184,39 @@ public class Logs extends Fragment {
 
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        // no need to check if empty, they have already been checked on main activity
+        SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, Activity.MODE_PRIVATE);
+        username = prefGet.getString("username", "bbbmetropolia@gmail.com");
+        password = prefGet.getString("password", "badbadboys0");
+    }
+
+    public void getCurrentData() {
+
+        Log.d("INFO", "Executing post-fetching action");
+
+        if (recorder.getLastResultState() != "OK")
+            return;
+
+
+    }
+
     public void resetTrack() {
         Log.d("USR", "Button pressed");
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MM yyyy, h:mm a");
+        //SimpleDateFormat sdf = new SimpleDateFormat("dd MM yyyy, h:mm a");
 
         try {
             /*if (thingsee == null)
                 thingsee = new ThingSee(username, password);*/
-
-            startTimestamp = sdf.parse(tdate.getText().toString()).getTime();
+            startTimestamp = TimestampDateHandler.dateToTimestamp(tdate.getText().toString());
 //            realStartTimestamp = System.currentTimeMillis();
         } catch (Exception ex){}
 
-        trackData.start(10000);
+        trackData.start(System.currentTimeMillis(),15000);
 
         recorder = new DataRecorder(username, password, trackData, startTimestamp, REQUEST_DELAY);
         recorder.start(handler);

@@ -84,15 +84,13 @@
     </LinearLayout>
 
     <SeekBar
-        android:id="@+id/simpleSeekBar"
+        android:id="@+id/mainSeekBar"
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="#ff69b4"
-        android:indeterminate="true"
-        android:max="200"
-        android:thumb="@drawable/thumb" />
+        android:background="#ffffff"
+        android:max="1000"/>
 
     <LinearLayout
         android:layout_width="match_parent"

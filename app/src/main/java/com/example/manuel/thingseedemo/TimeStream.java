@@ -9,6 +9,7 @@ import com.example.manuel.thingseedemo.util.TimeStreamMapToScalar;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by manuel on 2/19/18.
@@ -185,6 +186,36 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         return result;
     }
 
+    public List<T> createSamples(long interval){
+        ArrayList<T> lst = new ArrayList<>();
 
-    //TODO: add createSamples
+        if (isEmpty())
+            return lst;
+
+        long cur = getFirst().getTime();
+
+        while (cur < getLastTimestamp()){
+            lst.add(getDataAtTime(cur));
+            cur += interval;
+        }
+
+        return lst;
+    }
+
+    public List<T> createSamples(long interval, long start, long end){
+        ArrayList<T> lst = new ArrayList<>();
+
+        if (isEmpty())
+            return lst;
+
+        long cur = start;
+
+        while (cur < end){
+            lst.add(getDataAtTime(cur));
+            cur += interval;
+        }
+
+        return lst;
+    }
+
 }
