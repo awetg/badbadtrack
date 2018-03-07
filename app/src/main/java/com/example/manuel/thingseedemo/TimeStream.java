@@ -30,7 +30,7 @@ public class TimeStream<T extends DataWithTime> {
     }
 
     public void addStream(TimeStream<T> stream){
-        boolean later = true;
+        boolean isLater = true;
 
         outOfBoundMargin = stream.outOfBoundMargin;
 
@@ -39,10 +39,10 @@ public class TimeStream<T extends DataWithTime> {
         else {
             long last = data.get(data.size() - 1).getTime();
             for (T entry : stream.data) {
-                later = later && (entry.getTime() >= last);
+                isLater = isLater && (entry.getTime() >= last);
             }
             data.addAll(stream.data);
-            if (!later)
+            if (!isLater)
                 Collections.sort(data);
         }
     }
@@ -184,4 +184,6 @@ public class TimeStream<T extends DataWithTime> {
         return result;
     }
 
+
+    //TODO: add createSamples
 }
