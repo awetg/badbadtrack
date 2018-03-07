@@ -1,9 +1,11 @@
 package com.example.manuel.thingseedemo.fragments;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.manuel.thingseedemo.R;
+import com.example.manuel.thingseedemo.TrackService;
 import com.example.manuel.thingseedemo.util.CustomAdapter;
 
 import java.util.ArrayList;
@@ -44,6 +47,8 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
     static final String ADD_MODE = "add";
     static final String LAST_TRACK = "name";
     static final String ALL_TRACK = "all";
+    private static final String PREFERENCEID = "Credentials";
+
 
 
     ListView listView;
@@ -56,6 +61,11 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
     CustomAdapter myAdapter;
     List<String> list;
 
+    private String               username, password;
+
+    Intent myIntent;
+
+
     public Track() {
         // Required empty public constructor
     }
@@ -65,7 +75,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        sharedPreferences = getActivity().getSharedPreferences(MODE, getActivity().MODE_PRIVATE);
+        sharedPreferences = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
         String getMode = sharedPreferences.getString(MODE, "");
         if (getMode.equals(LIST_MODE) || getMode.isEmpty()) {
 
@@ -96,6 +106,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                 changeMode(LIST_MODE);
                 setView(R.layout.fragment_track);
                 getViewItems(R.layout.fragment_track);
+                getActivity().stopService(myIntent);
                 break;
 
         }
@@ -133,6 +144,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                                 addToTrackList();
                                 setView(R.layout.current_record);
                                 getViewItems(R.layout.current_record);
+                                startService();
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -148,6 +160,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         // show it
         alertDialog.show();
     }
+
 
 
     private void getViewItems(int id) {
@@ -182,9 +195,9 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
     private void changeMode(String newMode) {
 
-        SharedPreferences prefPut = getActivity().getSharedPreferences(MODE, getActivity().MODE_PRIVATE);
+        SharedPreferences prefPut = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = prefPut.edit();
-        prefEditor.putString(MODE_KEY, newMode);
+        prefEditor.putString(MODE, newMode);
         prefEditor.commit();
 
     }
@@ -257,6 +270,33 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
         return super.onContextItemSelected(item);
     }
+
+
+    private void startService() {
+
+        final String KEY_INTERVAL = "key";
+        final String KEY_USERNAME = "usr";
+        final String KEY_PASSWORD = "pass";
+        int interval = 10000;
+
+        getCredentials();
+
+//        Long timeStamp = System.currentTimeMillis()/1000;
+
+        myIntent = new Intent(getActivity(),TrackService.class);
+
+        myIntent.putExtra(KEY_INTERVAL,interval);
+        myIntent.putExtra(KEY_USERNAME,username);
+        myIntent.putExtra(KEY_PASSWORD,password);
+        getActivity().startService(myIntent);
+    }
+
+    private void getCredentials() {
+        SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, Activity.MODE_PRIVATE);
+        username = prefGet.getString("username", "bbbmetropolia@gmail.com");
+        password = prefGet.getString("password", "badbadboys0");
+    }
+
 
 }
 

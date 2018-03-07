@@ -184,4 +184,5 @@ public class Logs extends Fragment {
         //new Logs.TalkToThingsee().execute("QueryState");
     }
 
+
 }
