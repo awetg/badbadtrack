@@ -85,6 +85,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         } else if (getMode.equals(ADD_MODE)) {
 
             myView = inflater.inflate(R.layout.current_record, container, false);
+            trackName = sharedPreferences.getString(LAST_TRACK,"");
             getViewItems(R.layout.current_record);
 
         }

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -21,7 +20,7 @@ public class TrackService extends Service {
     private String               username, password;
     int interval;
 
-    TrackData trackData;
+    TrackData trackData = new TrackData();
     ThingSee thingsee;
     private String lastResultState = "OK";
 
