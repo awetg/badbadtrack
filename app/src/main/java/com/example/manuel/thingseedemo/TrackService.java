@@ -89,4 +89,9 @@ public class TrackService extends Service {
 
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        handlerThread.quitSafely();
+    }
 }
