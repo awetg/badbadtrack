@@ -2,11 +2,13 @@ package com.example.manuel.thingseedemo;
 
 import android.support.annotation.NonNull;
 
+import java.io.Serializable;
+
 /**
  * Created by manuel on 2/19/18.
  */
 
-public abstract class DataWithTime implements Comparable {
+public abstract class DataWithTime implements Comparable, Serializable {
 
     long time;
 

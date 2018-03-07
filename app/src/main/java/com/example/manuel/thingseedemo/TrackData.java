@@ -8,6 +8,7 @@ import com.example.manuel.thingseedemo.util.TimeStreamMapToScalar;
 
 import org.json.JSONArray;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
  * Created by manuel on 2/19/18.
  */
 
-public class TrackData {
+public class TrackData implements Serializable {
 
     private long outOfBoundMargin;
     private long startTimestamp;

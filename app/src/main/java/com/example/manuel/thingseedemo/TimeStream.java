@@ -6,6 +6,7 @@ import com.example.manuel.thingseedemo.util.Derivative;
 import com.example.manuel.thingseedemo.util.Integral;
 import com.example.manuel.thingseedemo.util.TimeStreamMapToScalar;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -13,7 +14,7 @@ import java.util.Collections;
  * Created by manuel on 2/19/18.
  */
 
-public class TimeStream<T extends DataWithTime> {
+public class TimeStream<T extends DataWithTime> implements Serializable {
 
     private ArrayList<T> data;
     long outOfBoundMargin;
