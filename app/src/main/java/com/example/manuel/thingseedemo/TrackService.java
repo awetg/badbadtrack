@@ -45,6 +45,8 @@ public class TrackService extends Service {
         username = intent.getStringExtra(KEY_USERNAME);
         password = intent.getStringExtra(KEY_PASSWORD);
 
+        trackData.start(10000);
+
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
         handler.post(runnable);
@@ -60,8 +62,19 @@ public class TrackService extends Service {
             String result = "NOT OK";
 
             try {
-                thingsee = new ThingSee(username, password);
+                if (thingsee == null && (username == null || password == null)) {
+                    lastResultState = result;
+                    Log.d("INFO", "Login info missing");
+                    return; //I don't have a proper ThingSee object or any credential to build it
+                }
+                else if (thingsee == null) {
+                    Log.d("INFO", "ThingSee connection attempt");
+                    thingsee = new ThingSee(username, password);
+                    Log.d("INFO", "Connected");
+                }
+
                 trackData.recordMore(thingsee);
+
                 result = "OK";
 
             } catch (Exception e) {
@@ -90,7 +103,7 @@ public class TrackService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         handlerThread.quitSafely();
+        super.onDestroy();
     }
 }
