@@ -116,9 +116,7 @@ public class TrackService extends Service {
     public void onDestroy() {
         Log.d("SERVICE CLASS: " ,"TRACK DATA IS NULL: " + (trackName==null));
 
-        if (trackName != Track.NONE)
-            DataStorage.storeData(trackData,trackName);
-
+        DataStorage.storeData(trackData,trackName);
         notificationManager.cancel(NOTIFICATION_ID);
         handlerThread.quitSafely();
         super.onDestroy();

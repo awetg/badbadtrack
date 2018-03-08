@@ -23,6 +23,7 @@ public class DataStorage {
 
     private static Context context;
     private static TrackData trackData;
+    private static String cachedFileName = null;
 
 
 
@@ -32,6 +33,25 @@ public class DataStorage {
 
     public static TrackData getTrackData(){
         return trackData;
+    }
+    public static String getCachedFileName(){
+        return cachedFileName;
+    }
+
+    public static void setTrackData(TrackData data){
+        trackData = data;
+    }
+
+    public static void setRealtime(){
+        trackData = null;
+    }
+
+    public static boolean isRealtime(){
+        return trackData == null;
+    }
+
+    public static boolean isTrackOrRecording(){
+        return !isRealtime();
     }
 
 
@@ -54,6 +74,7 @@ public class DataStorage {
 
 
     public static void loadData(String trackName) {
+        cachedFileName = trackName;
         String s = trackName + ".tk";
         TrackData tempData = new TrackData();
 

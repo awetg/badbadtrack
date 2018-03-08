@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import com.example.manuel.thingseedemo.DataRecorder;
 import com.example.manuel.thingseedemo.LocationData;
 import com.example.manuel.thingseedemo.R;
+import com.example.manuel.thingseedemo.RealTimeRecorder;
 import com.example.manuel.thingseedemo.ThingSee;
 import com.example.manuel.thingseedemo.TimeStream;
 import com.example.manuel.thingseedemo.TrackData;
@@ -64,7 +65,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
     boolean real = true;
 
     ThingSee thingSee;
-    DataRecorder dataRecorder;
+    RealTimeRecorder realTimeRecorder;
     TrackData trackData;
     private String               username, password;
 
@@ -73,7 +74,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
     private Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg){
-            if (msg.what == DataRecorder.DATA_UPDATED)
+            if (msg.what == RealTimeRecorder.DATA_UPDATED)
                 updateLocation();
                 Log.d("INFO", "Message received from Logs");
         }
@@ -101,8 +102,6 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
         if(mode!=null && mode.equals(TRACK_MODE)){
 
-            trackName = sharedPreferences.getString(RUNNING_TRACK,"");
-
             real = false;
 
         }
@@ -111,7 +110,87 @@ public class Map extends Fragment implements OnMapReadyCallback {
         return myView;
     }
 
-    private void getTrack(String trackName) {
+
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+    }
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        myMap = googleMap;
+
+        LatLng metropolia = new LatLng(60.220941, 24.804980);
+
+
+        if(real) {
+
+            StartTrack();
+
+        }
+        else {
+            getTrack();
+
+            if(polylineOptions!=null) {
+
+            // adding this location to make the line longer, can't be seen only 3 location data yet
+            polylineOptions.add(metropolia);
+
+            myMap.addPolyline(polylineOptions);
+            List<LatLng> l = polylineOptions.getPoints();
+            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(l.get(l.size() - 1), 15));
+
+
+        }
+
+        }
+    }
+
+    private void StartTrack() {
+
+        trackData = new TrackData();
+        trackData.start(10000);
+        getCredentials();
+
+        realTimeRecorder = new RealTimeRecorder(username, password, REQUEST_DELAY);
+        realTimeRecorder.start(handler);
+    }
+
+    private void updateLocation() {
+
+        if (realTimeRecorder.getLastResultState() != "OK")
+            return;
+        else {
+            TrackData temp = realTimeRecorder.getData();
+            if(temp!=null) {
+
+                LocationData locationData = temp.getLocationStream().getLast();
+                String date = TimestampDateHandler.timestampToDate(locationData.getTime());
+                LatLng lastLatLang = new LatLng(locationData.getLatitude(), locationData.getLongitude());
+                MarkerOptions options1 = new MarkerOptions();
+                options1.position(lastLatLang).title("Location on " + date);
+                myMap.addMarker(options1);
+                myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLatLang, 15));
+            }
+
+
+        }
+    }
+
+
+    private void getCredentials(){
+        SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, getActivity().MODE_PRIVATE);
+        username = prefGet.getString("username", "bbbmetropolia@gmail.com");
+        password = prefGet.getString("password", "badbadboys0");
+    }
+
+    private void getTrack() {
         TrackData trackData = DataStorage.getTrackData();
         if(trackData!=null) {
 
@@ -141,79 +220,4 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
     }
 
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-    }
-
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        myMap = googleMap;
-
-        LatLng metropolia = new LatLng(60.220941, 24.804980);
-
-
-        if(real) {
-
-            StartTrack();
-
-        }
-        else {
-            getTrack(trackName);
-
-            if(polylineOptions!=null) {
-
-            // adding this location to make the line longer, can't be seen only 3 location data yet
-            polylineOptions.add(metropolia);
-
-            myMap.addPolyline(polylineOptions);
-            List<LatLng> l = polylineOptions.getPoints();
-            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(l.get(l.size() - 1), 15));
-
-
-        }
-
-        }
-    }
-
-    private void StartTrack() {
-
-        trackData = new TrackData();
-        trackData.start(10000);
-        getCredentials();
-
-        dataRecorder = new DataRecorder(username, password, trackData, REQUEST_DELAY);
-        dataRecorder.start(handler);
-    }
-
-    private void updateLocation() {
-
-        if (dataRecorder.getLastResultState() != "OK")
-            return;
-        else {
-            TrackData temp = dataRecorder.getData();
-            LocationData locationData = temp.getLocationStream().getLast();
-            String date = TimestampDateHandler.timestampToDate(locationData.getTime());
-            LatLng lastLatLang = new LatLng(locationData.getLatitude(),locationData.getLongitude());
-            MarkerOptions options1 = new MarkerOptions();
-            options1.position(lastLatLang).title("Location on "+date);
-            myMap.addMarker(options1);
-            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLatLang, 15));
-
-
-        }
-    }
-
-
-    private void getCredentials(){
-        SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, getActivity().MODE_PRIVATE);
-        username = prefGet.getString("username", "bbbmetropolia@gmail.com");
-        password = prefGet.getString("password", "badbadboys0");
-    }
 }

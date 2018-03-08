@@ -155,7 +155,7 @@ public class Logs extends Fragment {
     }
 
     public void showDataAtTime(long timestamp){
-        if (trackData != null && !trackData.isInitialized())
+        if (trackData == null && !trackData.isInitialized())
             return;
 
         TrackData.AllDataStructure dataAtTime;
