@@ -19,6 +19,7 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
 
     private ArrayList<T> data;
     long outOfBoundMargin;
+    protected boolean doInterpolation = true;
 
     public TimeStream(long outOfBoundMarginTime){
 
@@ -164,6 +165,9 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         }
 
 
+        if (!doInterpolation && after > 1){
+
+        }
 
         if (after < 1 || after > data.size()){
             return null;
@@ -186,7 +190,7 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         return result;
     }
 
-    public List<T> createSamples(long interval){
+    public ArrayList<T> createSamples(long interval){
         ArrayList<T> lst = new ArrayList<>();
 
         if (isEmpty())
@@ -202,7 +206,7 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         return lst;
     }
 
-    public List<T> createSamples(long interval, long start, long end){
+    public ArrayList<T> createSamples(long interval, long start, long end){
         ArrayList<T> lst = new ArrayList<>();
 
         if (isEmpty())
@@ -217,5 +221,10 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
 
         return lst;
     }
+
+    public void setInterpolation(boolean interpolate){
+        doInterpolation = interpolate;
+    }
+
 
 }

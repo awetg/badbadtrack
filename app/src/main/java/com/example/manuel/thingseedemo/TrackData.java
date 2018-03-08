@@ -283,7 +283,7 @@ public class TrackData implements Serializable {
                 distance.getDataAtTime(time));
     }
 
-    public List<AllDataStructure> createSamples(long interval){
+    public ArrayList<AllDataStructure> createSamples(long interval){
         ArrayList<AllDataStructure> lst = new ArrayList<>();
         long cur = startTimestamp;
 

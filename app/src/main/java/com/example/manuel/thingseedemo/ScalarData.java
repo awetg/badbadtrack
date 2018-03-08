@@ -8,6 +8,7 @@ public class ScalarData extends DataWithTime {
 
     private double value;
 
+
     public void setValue(double value) {
         this.value = value;
     }
