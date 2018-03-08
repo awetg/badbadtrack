@@ -134,6 +134,9 @@ public class Logs extends Fragment {
     }
 
     private long progressToTimestamp(){
+        if (trackData == null || trackData.isEmpty() || isRealtime)
+            return 0;
+
         long timeStart = trackData.getFirstTimestamp();
         long timeEnd = trackData.getCurrentTimestamp();
         double progStart = 0;

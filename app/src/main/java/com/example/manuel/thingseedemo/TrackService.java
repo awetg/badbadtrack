@@ -66,6 +66,7 @@ public class TrackService extends Service {
         startNotification();
 
         trackData.start(10000);
+        DataStorage.setTrackData(trackData);
 
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
