@@ -48,15 +48,12 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
     LayoutInflater inflater;
     SharedPreferences sharedPreferences;
 
-    public static final String MODE_KEY = "MODE_KEY";
-    public static final String MODE = "MODE";
-    public static final String REAL_MODE = "REAL";
-    public static final String RECORD_MODE = "RECORD";
-    public static final String TRACK_MODE = "TRACK";
-    public static final String LAST_TRACK = "LAST";
-    public static final String ALL_TRACK = "ALL";
-    public static final String RUNNING_TRACK = "RUNNING";
-    public static final String NONE = "NONE";
+    static final String MODE_KEY = "MODE_KEY";
+    static final String MODE = "MODE";
+    static final String REAL_MODE = "REAL";
+    static final String RECORD_MODE = "RECORD";
+    static final String LAST_TRACK = "LAST";
+    static final String ALL_TRACK = "ALL";
     private static final String PREFERENCEID = "Credentials";
 
 
@@ -87,7 +84,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                              Bundle savedInstanceState) {
 
         sharedPreferences = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
-        String getMode = sharedPreferences.getString(MODE, REAL_MODE);
+        String getMode = sharedPreferences.getString(MODE, "");
         if (getMode.equals(REAL_MODE) || getMode.isEmpty()) {
 
             myView = inflater.inflate(R.layout.fragment_track, container, false);
@@ -100,11 +97,6 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
             trackName = sharedPreferences.getString(LAST_TRACK,"");
             getViewItems(R.layout.current_record);
 
-        }
-        else if(getMode.equals(TRACK_MODE)){
-
-            myView = inflater.inflate(R.layout.fragment_track, container, false);
-            getViewItems(R.layout.fragment_track);
         }
         return myView;
     }
@@ -283,8 +275,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                 if (trackSet != null) {
                     list.clear();
                     list.addAll(trackSet);
-                    runningTrack(list.get(itemInfo.position));
-                    changeMode(TRACK_MODE);
+                    DataStorage.loadData(list.get(itemInfo.position));
                 }
                 break;
             case R.id.delete:
@@ -309,11 +300,10 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                 if (trackSet != null) {
                     list.clear();
                     list.addAll(trackSet);
-                    String s = sharedPreferences.getString(RUNNING_TRACK,null);
+                    String s = DataStorage.getCachedFileName();
 
                     if(s!=null && s.equals(list.get(itemInfo.position))) {
 
-                        runningTrack(NONE);
                         changeMode(REAL_MODE);
                     }
                 }
@@ -322,15 +312,6 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
 
         return super.onContextItemSelected(item);
-    }
-
-    private void runningTrack(String track) {
-
-        SharedPreferences.Editor prefEditor = sharedPreferences.edit();
-        prefEditor.putString(RUNNING_TRACK, track);
-        prefEditor.commit();
-        if (track != NONE)
-            DataStorage.loadData(track);
     }
 
 
