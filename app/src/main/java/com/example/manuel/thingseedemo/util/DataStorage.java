@@ -34,24 +34,9 @@ public class DataStorage {
     public static TrackData getTrackData(){
         return trackData;
     }
+
     public static String getCachedFileName(){
         return cachedFileName;
-    }
-
-    public static void setTrackData(TrackData data){
-        trackData = data;
-    }
-
-    public static void setRealtime(){
-        trackData = null;
-    }
-
-    public static boolean isRealtime(){
-        return trackData == null;
-    }
-
-    public static boolean isTrackOrRecording(){
-        return !isRealtime();
     }
 
     public static void setTrackData(TrackData data){
