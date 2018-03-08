@@ -1,5 +1,7 @@
 package com.example.manuel.thingseedemo;
 
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * Created by manuel on 2/19/18.
  */
@@ -32,6 +34,10 @@ public class LocationData extends DataWithTime {
 
     public void setAltitude(double altitude) {
         this.altitude = altitude;
+    }
+
+    public LatLng getLatLang (){
+        return new LatLng(latitude,longitude);
     }
 
     public double dist2d(LocationData that){

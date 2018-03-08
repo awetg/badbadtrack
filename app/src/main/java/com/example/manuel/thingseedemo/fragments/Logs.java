@@ -218,7 +218,7 @@ public class Logs extends Fragment {
 
         trackData.start(System.currentTimeMillis(),15000);
 
-        recorder = new DataRecorder(username, password, trackData, startTimestamp, REQUEST_DELAY);
+        recorder = new DataRecorder(username, password, trackData, REQUEST_DELAY);
         recorder.start(handler);
 
         // we make the request to the Thingsee cloud server in backgroud
