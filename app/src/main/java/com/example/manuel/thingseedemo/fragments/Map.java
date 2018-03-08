@@ -1,24 +1,18 @@
 package com.example.manuel.thingseedemo.fragments;
 
 
-import android.Manifest;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.manuel.thingseedemo.DataRecorder;
 import com.example.manuel.thingseedemo.LocationData;
@@ -30,11 +24,9 @@ import com.example.manuel.thingseedemo.util.DataStorage;
 import com.example.manuel.thingseedemo.util.TimestampDateHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -141,8 +133,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
 //                }
 
                 for ( int j = 0; j < locationDataTimeStream.sampleCount(); j++){
-                    polylineOptions.add(locationDataTimeStream.ge(j).getLatLang());
-                    Log.d("LATLANG : ",locationDataTimeStream.ge(j).getLatLang().latitude + " " + locationDataTimeStream.ge(j).getLatLang().longitude);
+                    polylineOptions.add(locationDataTimeStream.get(j).getLatLang());
+                    Log.d("LATLANG : ",locationDataTimeStream.get(j).getLatLang().latitude + " " + locationDataTimeStream.get(j).getLatLang().longitude);
                 }
             }
         }

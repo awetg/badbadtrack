@@ -21,6 +21,8 @@ import java.util.List;
  * Created by manuel on 2/19/18.
  */
 
+
+
 public class TrackData implements Serializable {
 
     private long outOfBoundMargin;

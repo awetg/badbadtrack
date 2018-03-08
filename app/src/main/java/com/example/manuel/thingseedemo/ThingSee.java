@@ -27,6 +27,9 @@ import java.util.Random;
 
 import org.json.*;
 
+/**
+ * API to connect to ThingSeeOne and retrieve data in the form of TimeStream
+ */
 public class ThingSee {
     private final static String charset = "UTF-8";
     private final static String url     = "http://api.thingsee.com/v2";
@@ -181,6 +184,16 @@ public class ThingSee {
         return (events);
     }
 
+    /**
+     * Request all device events
+     * <p>
+     * Every device has an event log. This method read the given devices event log.
+     *
+     * @param  device    Device JSON description (given by Devices() method
+     * @param  start     Initial timestamp
+     * @return           Events in JSON format
+     * @throws Exception Gives an exception with text information if there was an error
+     */
     public JSONArray Events(JSONObject device, long start) throws Exception {
         JSONObject resp;
         JSONArray  events;
@@ -197,7 +210,16 @@ public class ThingSee {
         return (events);
     }
 
-
+    /**
+     * Request all device events
+     * <p>
+     * Every device has an event log. This method read the given devices event log.
+     *
+     * @param  device    Device JSON description (given by Devices() method
+     * @param  limit     Limits the amount of events to request
+     * @return           Events in JSON format
+     * @throws Exception Gives an exception with text information if there was an error
+     */
     public JSONArray Events(JSONObject device, int limit) throws Exception {
         JSONObject resp;
         JSONArray  events;
@@ -262,125 +284,103 @@ public class ThingSee {
 
 
     /**
-     * Obtain Location objects from the events array
-     * <p>
-     * Collects all location events and construct Location object
-     *
-     * @param  events Device JSON description (given by Devices() method)
-     * @return        List of Location objects (coordinates), empty if there are no coordinates available
-     * @throws        Exception Gives an exception with text information if there was an error
+     * Get a TimeStream of location data from the events
+     * @param events JSONArray containing a list of events retrieved from ThingSeeOne
+     * @param outOfBoundMarginTime how much time after the last viable data the constructed stream will return null data
+     * @return TimeStream of the locations contained in events
+     * @throws Exception
      */
-    public List getPath(JSONArray events) throws Exception {
-        List   coordinates = new ArrayList();
-        int    k;
-
-        try {
-            for (int i = 0; i < events.length(); i++) {
-                JSONObject event = events.getJSONObject(i);
-                Location   loc   = new Location("ThingseeONE");
-
-                loc.setTime(event.getLong("timestamp"));
-                k = 0;
-                JSONArray senses = event.getJSONObject("cause").getJSONArray("senses");
-                for (int j = 0; j < senses.length(); j++) {
-                    JSONObject sense   = senses.getJSONObject(j);
-                    int        senseID = Integer.decode(sense.getString("sId"));
-                    double     value   = sense.getDouble("val");
-
-
-                    switch (senseID) {
-                        case GROUP_LOCATION | PROPERTY1:
-                            loc.setLatitude(value);
-                            k++;
-                            break;
-
-                        case GROUP_LOCATION | PROPERTY2:
-                            loc.setLongitude(value);
-                            k++;
-                            break;
-                    }
-
-                    if (k == 2) {
-                        coordinates.add(loc);
-                        k = 0;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new Exception("No coordinates");
-        }
-
-        return coordinates;
-    }
-
-
-    /*
-
-    ****************************************
-    *
-    * The following methods will create data streams for each type of sensor data
-    *
-    *
-
-     */
-
     public TimeStream<LocationData> getLocationStream(JSONArray events, long outOfBoundMarginTime) throws Exception {
+        //Create an empty resulting stream
         TimeStream<LocationData> stream = new TimeStream<>(outOfBoundMarginTime);
 
-        try {
-            for (int i = 0; i < (isFake ? 10 : events.length()); i++) {
+        //Go through every real event, or if ThingSee is set to return fake data, through 10 fake events
+        for (int i = 0; i < (isFake ? 10 : events.length()); i++) {
+            try {
+                //Get the real event or null if we are generating a fake event
                 JSONObject event = isFake ? null : events.getJSONObject(i);
+                //Get the location data from the event
                 LocationData data = (LocationData)getEventData(event, LOCATION_DATA);
                 if (data != null)
+                    //If the event contained valid location data, add it to the resulting stream
                     stream.addSample(data);
+
+            } catch (Exception e) {
+                //If there is an error, ignore the current event
             }
-        } catch (Exception e) {
-            return stream;
         }
 
         return stream;
     }
 
     /**
-    @type ThingSee.TEMPERATURE_DATA, ThingSee.IMPACT_DATA, ThingSee.PRESSURE_DATA, ThingSee.BATTERY_DATA, ThingSee.SPEED_DATA,
-     **/
+     * Get a TimeStream of scalar data from the events
+     * @param events JSONArray containing a list of events retrieved from ThingSeeOne
+     * @param outOfBoundMarginTime how much time after the last viable data the constructed stream will return null data
+     * @param type One of ThingSee.TEMPERATURE_DATA, ThingSee.IMPACT_DATA, ThingSee.PRESSURE_DATA, ThingSee.BATTERY_DATA, ThingSee.SPEED_DATA
+     * @return TimeStream of the locations contained in events
+     * @throws Exception
+     */
     public TimeStream<ScalarData> getScalarStream(JSONArray events, int type, long outOfBoundMarginTime) throws Exception {
+        //Create an empty resulting stream
         TimeStream<ScalarData> stream = new TimeStream<>(outOfBoundMarginTime);
 
-        try {
-            for (int i = 0; i < (isFake ? 10 : events.length()); i++) {
+        //Go through every real event, or if ThingSee is set to return fake data, through 10 fake events
+        for (int i = 0; i < (isFake ? 10 : events.length()); i++) {
+            try {
+                //Get the real event or null if we are generating a fake event
                 JSONObject event = isFake ? null : events.getJSONObject(i);
-                ScalarData data = (ScalarData)getEventData(event, type);
+                //Get the location data from the event
+                ScalarData data = (ScalarData) getEventData(event, type);
                 if (data != null)
+                    //If the event contained valid scalar data, add it to the resulting stream
                     stream.addSample(data);
+
+            } catch (Exception e) {
+                //If there is an error, ignore the current event
             }
-        } catch (Exception e) {
-            return stream;
         }
 
         return stream;
     }
 
-
+    /**
+     * Get a DataWithTime of type ScalarData (and more specifically temperature, pressure, ...) or
+     * location data if the current event contains relevant value.
+     * @param event the event that might contain data of type "type", or null if in fake data mode
+     * @param type the type of data to try to extract from the event
+     * @return the value extracted from the event, or null in case the event does not contain data of type "type"
+     * @throws Exception
+     */
     private DataWithTime getEventData(JSONObject event, int type) throws Exception {
 
+        //The data we will return
         DataWithTime data = null;
 
+        //If we are in fake data mode, return fake data, don't care about the real event
         if (isFake)
             return getEventFakeData(type);
 
         try {
+            //Data that could be extracted
             Double latitude = null, longitude = null, altitude = null, temperature = null,
                     pressure = null, impact = null, speed = null, battery = null;
 
-                long time = event.getLong("timestamp");
-                JSONArray senses = event.getJSONObject("cause").getJSONArray("senses");
-                for (int j = 0; j < senses.length(); j++) {
-                    JSONObject sense   = senses.getJSONObject(j);
-                    int        senseID = Integer.decode(sense.getString("sId"));
-                    double     value   = sense.getDouble("val");
+            //Timestamp of the event
+            long time = event.getLong("timestamp");
+            //Extract the values contained in the event
+            JSONArray senses = event.getJSONObject("cause").getJSONArray("senses");
+            //For each value...
+            for (int j = 0; j < senses.length(); j++) {
+                //... get a reference to it ...
+                JSONObject sense   = senses.getJSONObject(j);
+                //... get its type ...
+                int        senseID = Integer.decode(sense.getString("sId"));
+                //... get its actual value as a real number
+                double     value   = sense.getDouble("val");
 
-                    switch (senseID) {
+                //Depending on the value of the event, fill the appropriate container variable
+                switch (senseID) {
                         case GROUP_LOCATION | LATITUDE:
                             latitude = value;
                             break;
@@ -437,7 +437,7 @@ public class ThingSee {
                     } else if (type == TEMPERATURE_DATA && temperature != null) {
                         ScalarData temp = new ScalarData();
                         temp.setValue(temperature);
-                        Log.d("TempData", "Got temperature data " + temperature);
+                        //Log.d("TempData", "Got temperature data " + temperature);
                         data = temp;
                     }else if (type == PRESSURE_DATA && pressure != null) {
                         ScalarData p = new ScalarData();
@@ -461,6 +461,12 @@ public class ThingSee {
     }
 
 
+    /**
+     * Like getEventData, but the data is fake (randomly generated)
+     * @param type the type of data to get
+     * @return
+     * @throws Exception
+     */
     private DataWithTime getEventFakeData(int type) throws Exception {
 
         DataWithTime data = null;
@@ -519,14 +525,20 @@ public class ThingSee {
         return data;
     }
 
-
+    /**
+     * Set the ThingSee object to use fake randomly generated data (for debugging purposes)
+     */
     public void setFake(){
         isFake = true;
     }
 
+    /**
+     * Set the ThingSee object to use the real ThingSeeOne cloud data (active by default)
+     */
     public void setReal(){
         isFake = false;
     }
+
 
     @Override
     public String toString() {
