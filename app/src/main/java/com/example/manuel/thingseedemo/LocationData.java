@@ -86,7 +86,7 @@ public class LocationData extends DataWithTime {
 
             result.setLatitude(this.getLatitude() + factor * (thatLoc.getLatitude() - this.getLatitude()));
             result.setLongitude(this.getLongitude() + factor * (thatLoc.getLongitude() - this.getLongitude()));
-            result.setLongitude(this.getAltitude() + factor * (thatLoc.getLatitude() - this.getAltitude()));
+            result.setAltitude(this.getAltitude() + factor * (thatLoc.getAltitude() - this.getAltitude()));
 
             return result;
         }
