@@ -33,6 +33,10 @@ import com.example.manuel.thingseedemo.util.DataStorage;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    final static String INTENT_KEY = "MENU";
+    final static String INTENT_VALUE = "TRACK";
+
+
     private NavigationView navigationView;
     private String               username, password;
     private static final String PREFERENCEID = "Credentials";
@@ -46,9 +50,19 @@ public class MainActivity extends AppCompatActivity
 
         //changing map fragment to default view, since it starts as empty, better fix needed if possible
         if (savedInstanceState == null) {
+            String fragment = getIntent().getStringExtra(INTENT_KEY);
             navigationView = (NavigationView) findViewById(R.id.nav_view);
-            MenuItem item =  navigationView.getMenu().getItem(0);
-            onNavigationItemSelected(item);
+            if(fragment!=null && fragment.equals(INTENT_VALUE)){
+
+                MenuItem item =  navigationView.getMenu().getItem(2);
+                onNavigationItemSelected(item);
+            }
+            else {
+
+                MenuItem item =  navigationView.getMenu().getItem(0);
+                onNavigationItemSelected(item);
+
+            }
         }
 
 
