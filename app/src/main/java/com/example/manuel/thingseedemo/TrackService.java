@@ -138,7 +138,6 @@ public class TrackService extends Service {
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round))
                 .setWhen(System.currentTimeMillis())
-                .setOngoing(true)
                 .setAutoCancel(false)
                 .setContentTitle("Recording Track")
                 .setContentText("Current track " + trackName + ". Tap to end.")
