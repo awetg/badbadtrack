@@ -170,18 +170,18 @@ public class Map extends Fragment implements OnMapReadyCallback {
             TrackData temp = realTimeRecorder.getData();
             if(temp!=null) {
 
-                TimeStream<LocationData> locationDataTimeStream = temp.getLocationStream();
-                if(locationDataTimeStream!=null) {
-                    LocationData locationData = locationDataTimeStream.getLast();
-                    String time = TimestampDateHandler.relativeTime(locationData.getTime());
-                    LatLng lastLatLang = new LatLng(locationData.getLatitude(), locationData.getLongitude());
-                    MarkerOptions options1 = new MarkerOptions();
-                    options1.position(lastLatLang).title("Location on " + time);
-                    myMap.addMarker(options1);
-                    myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLatLang, 15));
-                }
-            }
+                LocationData locationData = temp.getLocationStream().getLast();
 
+                if (locationData == null)
+                    return;
+
+                String date = TimestampDateHandler.timestampToDate(locationData.getTime());
+                LatLng lastLatLang = new LatLng(locationData.getLatitude(), locationData.getLongitude());
+                MarkerOptions options1 = new MarkerOptions();
+                options1.position(lastLatLang).title("Location on " + date);
+                myMap.addMarker(options1);
+                myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLatLang, 15));
+            }
 
         }
     }

@@ -41,6 +41,7 @@ public class RealTimeRecorder {
     public void start(Handler callbackHandler) {
         recording = true;
         targetMsgHandler = callbackHandler;
+        data.start(System.currentTimeMillis(), 15000);
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
         handler.post(runnable);

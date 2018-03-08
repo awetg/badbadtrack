@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -20,12 +19,8 @@ import android.widget.TextView;
 import com.example.manuel.thingseedemo.R;
 import com.example.manuel.thingseedemo.RealTimeRecorder;
 import com.example.manuel.thingseedemo.TrackData;
-import com.example.manuel.thingseedemo.DataRecorder;
 import com.example.manuel.thingseedemo.util.DataStorage;
 import com.example.manuel.thingseedemo.util.TimestampDateHandler;
-
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 
 /**
  * Created by awetg on 15.2.2018.
@@ -58,20 +53,21 @@ public class Logs extends Fragment {
             if (msg.what == RealTimeRecorder.DATA_UPDATED)
                 getCurrentData();
                 showDataAtTime(System.currentTimeMillis());
-                checkState();
+                checkAndRefreshState();
         }
     };
 
-    private void checkState(){
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(Track.MODE_KEY, getActivity().MODE_PRIVATE);
-        String getMode = sharedPreferences.getString(Track.MODE, Track.REAL_MODE);
-
-        if (getMode != null && getMode == Track.REAL_MODE){
+    private void checkAndRefreshState(){
+        if (DataStorage.isRealtime() && !isRealtime){
             realTimeRecorder = new RealTimeRecorder(username, password, 5000);
             realTimeRecorder.start(handler);
             isRealtime = true;
             timeSeekBar.setEnabled(false);
-        } else {
+        } else if (DataStorage.isRealtime()) {
+
+        }
+        else {
+            isRealtime = false;
             if (realTimeRecorder != null){
                 realTimeRecorder.stop();
                 realTimeRecorder = null;
@@ -109,7 +105,7 @@ public class Logs extends Fragment {
         String dateString  = TimestampDateHandler.timestampToDate(startTimestamp);
         tdate.setText(dateString);
 
-        checkState();
+        checkAndRefreshState();
 
         timeSeekBar.setOnSeekBarChangeListener(
                 new SeekBar.OnSeekBarChangeListener() {
@@ -158,7 +154,7 @@ public class Logs extends Fragment {
     }
 
     public void showDataAtTime(long timestamp){
-        if (trackData == null && !trackData.isInitialized())
+        if (!isRealtime && (trackData == null || !trackData.isInitialized()))
             return;
 
         TrackData.AllDataStructure dataAtTime;
