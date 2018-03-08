@@ -1,6 +1,7 @@
 package com.example.manuel.thingseedemo.util;
 
 import android.support.annotation.Nullable;
+import android.text.format.DateUtils;
 
 import com.example.manuel.thingseedemo.LocationData;
 
@@ -32,4 +33,7 @@ public class TimestampDateHandler {
         return sdf.format(date);
     }
 
+    public static String relativeTime(long timestamp){
+        return (String) DateUtils.getRelativeTimeSpanString(timestamp, System.currentTimeMillis(), 0);
+    }
 }

@@ -54,22 +54,6 @@ public class DataStorage {
         return !isRealtime();
     }
 
-    public static void setTrackData(TrackData data){
-        trackData = data;
-    }
-
-    public static void setRealtime(){
-        trackData = null;
-    }
-
-    public static boolean isRealtime(){
-        return trackData == null;
-    }
-
-    public static boolean isTrackOrRecording(){
-        return !isRealtime();
-    }
-
 
     public static void storeData(TrackData trackData, String trackName) {
         String s = trackName + ".tk";

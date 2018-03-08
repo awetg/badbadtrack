@@ -65,8 +65,10 @@ public class RealTimeRecorder {
 
             doInBackground();
 
-            Message msg = targetMsgHandler.obtainMessage(DATA_UPDATED);
-            msg.sendToTarget();
+            if(lastResultState.equals("OK")) {
+                Message msg = targetMsgHandler.obtainMessage(DATA_UPDATED);
+                msg.sendToTarget();
+            }
 
             handler.postDelayed(this, interval);
         }
