@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.example.manuel.thingseedemo.util.Derivative;
 import com.example.manuel.thingseedemo.util.Integral;
 import com.example.manuel.thingseedemo.util.TimeStreamMapToScalar;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -66,6 +67,15 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
             return null;
         return data.get(0);
     }
+
+
+    @Nullable
+    public T ge(int i){
+        if (data.size() <= 0)
+            return null;
+        return data.get(i);
+    }
+
 
     public boolean isEmpty() {
         return data.isEmpty();
@@ -186,7 +196,7 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         return result;
     }
 
-    public List<T> createSamples(long interval){
+    public ArrayList<T> createSamples(long interval){
         ArrayList<T> lst = new ArrayList<>();
 
         if (isEmpty())
@@ -202,7 +212,7 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         return lst;
     }
 
-    public List<T> createSamples(long interval, long start, long end){
+    public ArrayList<T> createSamples(long interval, long start, long end){
         ArrayList<T> lst = new ArrayList<>();
 
         if (isEmpty())

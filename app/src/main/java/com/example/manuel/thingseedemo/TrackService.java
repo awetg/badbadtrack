@@ -8,16 +8,20 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.manuel.thingseedemo.util.DataStorage;
+
 /**
  * Created by awetg on 7.3.2018.
  */
 
 public class TrackService extends Service {
 
-    final String KEY_INTERVAL = "key";
-    final String KEY_USERNAME = "usr";
-    final String KEY_PASSWORD = "pass";
-    private String               username, password;
+    final String KEY_INTERVAL = "KEY";
+    final String KEY_USERNAME = "USR";
+    final String KEY_PASSWORD = "PASS";
+    static final String LAST_TRACK = "LAST";
+
+    private String               username, password, trackName;
     int interval;
 
     TrackData trackData = new TrackData();
@@ -44,6 +48,7 @@ public class TrackService extends Service {
         interval = intent.getIntExtra(KEY_INTERVAL,10000);
         username = intent.getStringExtra(KEY_USERNAME);
         password = intent.getStringExtra(KEY_PASSWORD);
+        trackName = intent.getStringExtra(LAST_TRACK);
 
         trackData.start(10000);
 
@@ -53,7 +58,7 @@ public class TrackService extends Service {
 
         Log.d("service","started");
 
-       return START_STICKY;
+       return START_REDELIVER_INTENT;
     }
 
     private Runnable runnable = new Runnable() {
@@ -73,6 +78,7 @@ public class TrackService extends Service {
                     Log.d("INFO", "Connected");
                 }
 
+                if(thingsee!=null)
                 trackData.recordMore(thingsee);
 
                 result = "OK";
@@ -82,27 +88,17 @@ public class TrackService extends Service {
             }
 
             lastResultState = result;
-            if(lastResultState.equals("OK"))
-                saveData();
 
             handler.postDelayed(this, interval);
         }
     };
 
-    private void saveData() {
 
-        TrackData.AllDataStructure currentData = trackData.getAllLast();
-        Double temperature, speed, impact, pressure;
-        temperature = currentData.getTemperature();
-        speed = currentData.getImpact();
-        impact = currentData.getDistance();
-        pressure = currentData.getBattery();
-        Log.d("temprature",temperature.toString());
-
-    }
 
     @Override
     public void onDestroy() {
+        Log.d("SERVICE CLASS: " ,"TRACK DATA IS NULL: " + (trackName==null));
+        DataStorage.storeData(trackData,trackName);
         handlerThread.quitSafely();
         super.onDestroy();
     }

@@ -41,7 +41,7 @@ public class DataRecorder {
         //realStartTimestamp = System.currentTimeMillis();
     }
 
-    public DataRecorder(String user, String pass, TrackData dataContainer, long startTime, int recordingInterval) {
+    public DataRecorder(String user, String pass, TrackData dataContainer, int recordingInterval) {
         username = user;
         password = pass;
         thingsee = null;

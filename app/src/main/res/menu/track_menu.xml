@@ -4,7 +4,11 @@
         android:id="@+id/run"
         android:title="Run"/>
     <item
+        android:id="@+id/stop"
+        android:title="stop"/>
+    <item
         android:id="@+id/delete"
-        android:title="Delete"/>@+id/
+        android:title="Delete"/>
+
 
 </menu>

@@ -2,19 +2,32 @@ package com.example.manuel.thingseedemo.fragments;
 
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.manuel.thingseedemo.DataRecorder;
+import com.example.manuel.thingseedemo.LocationData;
 import com.example.manuel.thingseedemo.R;
+import com.example.manuel.thingseedemo.ThingSee;
+import com.example.manuel.thingseedemo.TimeStream;
+import com.example.manuel.thingseedemo.TrackData;
+import com.example.manuel.thingseedemo.util.DataStorage;
+import com.example.manuel.thingseedemo.util.TimestampDateHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -23,6 +36,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -30,11 +47,47 @@ import com.google.android.gms.maps.model.MarkerOptions;
  */
 public class Map extends Fragment implements OnMapReadyCallback {
 
+    static final String MODE_KEY = "MODE_KEY";
+    static final String MODE = "MODE";
+    static final String REAL_MODE = "REAL";
+    static final String RECORD_MODE = "RECORD";
+    static final String TRACK_MODE = "TRACK";
+    static final String LAST_TRACK = "LAST";
+    static final String ALL_TRACK = "ALL";
+    static final String RUNNING_TRACK = "RUNNING";
+    static final String NONE = "NONE";
+    private static final String PREFERENCEID = "Credentials";
+    static final int REQUEST_DELAY = 10000;
+
+
 
     private View myView;
-    GoogleMap myMap;
 
-    int permissionRequestCode = 1;
+    GoogleMap myMap;
+    PolylineOptions polylineOptions;
+
+
+    SharedPreferences sharedPreferences;
+    String trackName;
+    boolean real = true;
+
+    ThingSee thingSee;
+    DataRecorder dataRecorder;
+    TrackData trackData;
+    private String               username, password;
+
+
+
+    private Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg){
+            if (msg.what == DataRecorder.DATA_UPDATED)
+                updateLocation();
+                Log.d("INFO", "Message received from Logs");
+        }
+    };
+
+
 
 
     public Map() {
@@ -51,8 +104,51 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
         myView = inflater.inflate(R.layout.fragment_map, container, false);
 
+        sharedPreferences = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
+        String mode = sharedPreferences.getString(MODE,"");
+
+        if(mode!=null && mode.equals(TRACK_MODE)){
+
+            trackName = sharedPreferences.getString(RUNNING_TRACK,"");
+
+            real = false;
+
+            if(!trackName.equals(NONE) && !trackName.isEmpty())
+                getTrack(trackName);
+        }
+
 
         return myView;
+    }
+
+    private void getTrack(String trackName) {
+        TrackData trackData = DataStorage.loadData(trackName);
+        if(trackData!=null) {
+
+            polylineOptions = new PolylineOptions();
+            polylineOptions.color( Color.BLUE );
+            polylineOptions.width( 15 );
+            polylineOptions.visible( true );
+
+            TimeStream<LocationData> locationDataTimeStream = trackData.getLocationStream();
+            if(locationDataTimeStream!=null) {
+
+//                ArrayList<LocationData> locationData = locationDataTimeStream.createSamples(4000);
+//                for (int i = 1; i < locationData.size(); i++) {
+//
+//                    polylineOptions.add(new LatLng(locationData.get(i).getLatitude(),locationData.get(i).getLongitude()));
+//                    Log.d("location : longitue - ", locationData.get(i).getLongitude() + "");
+//                }
+
+                for ( int j = 0; j < locationDataTimeStream.sampleCount(); j++){
+                    polylineOptions.add(locationDataTimeStream.ge(j).getLatLang());
+                    Log.d("LATLANG : ",locationDataTimeStream.ge(j).getLatLang().latitude + " " + locationDataTimeStream.ge(j).getLatLang().longitude);
+                }
+            }
+        }
+
+        ArrayList<String> gh = DataStorage.savedTracksNames();
+
     }
 
 
@@ -69,11 +165,64 @@ public class Map extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
 
         myMap = googleMap;
-        LatLng metropolia = new LatLng(60.220941, 24.804980);
-        MarkerOptions options1 = new MarkerOptions();
-        options1.position(metropolia).title("Metropolia");
-        myMap.addMarker(options1);
-        myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(metropolia, 15));
 
+        LatLng metropolia = new LatLng(60.220941, 24.804980);
+
+
+        if(real) {
+
+            StartTrack();
+
+        }
+        else {
+
+        if(polylineOptions!=null) {
+
+            // adding this location to make the line longer, can't be seen only 3 location data yet
+            polylineOptions.add(metropolia);
+
+            myMap.addPolyline(polylineOptions);
+            List<LatLng> l = polylineOptions.getPoints();
+            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(l.get(l.size() - 1), 15));
+
+
+        }
+
+        }
+    }
+
+    private void StartTrack() {
+
+        trackData = new TrackData();
+        trackData.start(10000);
+        getCredentials();
+
+        dataRecorder = new DataRecorder(username, password, trackData, REQUEST_DELAY);
+        dataRecorder.start(handler);
+    }
+
+    private void updateLocation() {
+
+        if (dataRecorder.getLastResultState() != "OK")
+            return;
+        else {
+            TrackData temp = dataRecorder.getData();
+            LocationData locationData = temp.getLocationStream().getLast();
+            String date = TimestampDateHandler.timestampToDate(locationData.getTime());
+            LatLng lastLatLang = new LatLng(locationData.getLatitude(),locationData.getLongitude());
+            MarkerOptions options1 = new MarkerOptions();
+            options1.position(lastLatLang).title("Location on "+date);
+            myMap.addMarker(options1);
+            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLatLang, 15));
+
+
+        }
+    }
+
+
+    private void getCredentials(){
+        SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, getActivity().MODE_PRIVATE);
+        username = prefGet.getString("username", "bbbmetropolia@gmail.com");
+        password = prefGet.getString("password", "badbadboys0");
     }
 }

@@ -28,6 +28,7 @@ import com.example.manuel.thingseedemo.fragments.Logs;
 import com.example.manuel.thingseedemo.fragments.Map;
 import com.example.manuel.thingseedemo.fragments.Settings;
 import com.example.manuel.thingseedemo.fragments.Track;
+import com.example.manuel.thingseedemo.util.DataStorage;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -75,6 +76,9 @@ public class MainActivity extends AppCompatActivity
 
         TextView accountText = navHeader.findViewById(R.id.accountText);
         accountText.setText(username);
+
+        DataStorage.init(this);
+
     }
 
 

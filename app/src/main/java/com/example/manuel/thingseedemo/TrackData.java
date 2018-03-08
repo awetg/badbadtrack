@@ -104,6 +104,11 @@ public class TrackData implements Serializable {
             TimeStream<ScalarData> incomingBattery = ts.getScalarStream(eventData, ThingSee.BATTERY_DATA, outOfBoundMargin*9);
             TimeStream<ScalarData> incomingSpeed = ts.getScalarStream(eventData, ThingSee.SPEED_DATA, outOfBoundMargin);
             Log.d("INFO", "Got " + incomingTemperatures.sampleCount() + " temperatures");
+            Log.d("INFO", "Got " + incomingLocations.sampleCount() + " locations");
+            Log.d("INFO", "Got " + incomingBattery.sampleCount() + " battery");
+            Log.d("INFO", "Got " + incomingSpeed.sampleCount() + " speed");
+            Log.d("INFO", "Got " + incomingImpact.sampleCount() + " impact");
+            Log.d("INFO", "Got " + incomingPressure.sampleCount() + " pressure");
             pressure.addStream(incomingPressure);
             impact.addStream(incomingImpact);
             battery.addStream(incomingBattery);

@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -22,9 +23,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.manuel.thingseedemo.LocationData;
 import com.example.manuel.thingseedemo.R;
+import com.example.manuel.thingseedemo.ScalarData;
+import com.example.manuel.thingseedemo.TimeStream;
+import com.example.manuel.thingseedemo.TrackData;
 import com.example.manuel.thingseedemo.TrackService;
 import com.example.manuel.thingseedemo.util.CustomAdapter;
+import com.example.manuel.thingseedemo.util.DataStorage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,10 +49,13 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
     static final String MODE_KEY = "MODE_KEY";
     static final String MODE = "MODE";
-    static final String LIST_MODE = "list";
-    static final String ADD_MODE = "add";
-    static final String LAST_TRACK = "name";
-    static final String ALL_TRACK = "all";
+    static final String REAL_MODE = "REAL";
+    static final String RECORD_MODE = "RECORD";
+    static final String TRACK_MODE = "TRACK";
+    static final String LAST_TRACK = "LAST";
+    static final String ALL_TRACK = "ALL";
+    static final String RUNNING_TRACK = "RUNNING";
+    static final String NONE = "NONE";
     private static final String PREFERENCEID = "Credentials";
 
 
@@ -71,26 +80,31 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
     }
 
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         sharedPreferences = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
         String getMode = sharedPreferences.getString(MODE, "");
-        if (getMode.equals(LIST_MODE) || getMode.isEmpty()) {
+        if (getMode.equals(REAL_MODE) || getMode.isEmpty()) {
 
             myView = inflater.inflate(R.layout.fragment_track, container, false);
             getViewItems(R.layout.fragment_track);
+            changeMode(REAL_MODE);
 
-        } else if (getMode.equals(ADD_MODE)) {
+        } else if (getMode.equals(RECORD_MODE)) {
 
             myView = inflater.inflate(R.layout.current_record, container, false);
             trackName = sharedPreferences.getString(LAST_TRACK,"");
             getViewItems(R.layout.current_record);
 
         }
+        else if(getMode.equals(TRACK_MODE)){
 
-
+            myView = inflater.inflate(R.layout.fragment_track, container, false);
+            getViewItems(R.layout.fragment_track);
+        }
         return myView;
     }
 
@@ -104,13 +118,35 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                 break;
 
             case R.id.endButton:
-                changeMode(LIST_MODE);
+                changeMode(REAL_MODE);
                 setView(R.layout.fragment_track);
                 getViewItems(R.layout.fragment_track);
+                if(myIntent!=null)
                 getActivity().stopService(myIntent);
                 break;
 
         }
+
+    }
+
+    private void loadData(String s) {
+
+
+        TrackData trackData = DataStorage.loadData(s);
+        if(trackData!=null) {
+
+            TimeStream<LocationData> locationDataTimeStream = trackData.getLocationStream();
+            if(locationDataTimeStream!=null) {
+
+                ArrayList<LocationData> locationData = locationDataTimeStream.createSamples(1000);
+                for (int i = 1; i < locationData.size(); i++) {
+                    Log.d("location : longitue - ", locationData.get(i).getLongitude() + "");
+                }
+            }
+        }
+
+        ArrayList<String> gh = DataStorage.savedTracksNames();
+
 
     }
 
@@ -128,7 +164,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         alertDialogBuilder.setView(promptsView);
 
         final TextView msgText = promptsView.findViewById(R.id.msgText);
-        final EditText nameTExt = promptsView.findViewById(R.id.nameText);
+        final EditText nameEditText = promptsView.findViewById(R.id.nameText);
 
         msgText.setText(msg);
 
@@ -139,9 +175,9 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 // get user input and set it to result
-                                trackName = nameTExt.getText().toString();
+                                trackName = nameEditText.getText().toString();
 
-                                changeMode(ADD_MODE);
+                                changeMode(RECORD_MODE);
                                 addToTrackList();
                                 setView(R.layout.current_record);
                                 getViewItems(R.layout.current_record);
@@ -196,14 +232,13 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
     private void changeMode(String newMode) {
 
-        SharedPreferences prefPut = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
-        SharedPreferences.Editor prefEditor = prefPut.edit();
+        SharedPreferences.Editor prefEditor = sharedPreferences.edit();
         prefEditor.putString(MODE, newMode);
         prefEditor.commit();
-
     }
 
     private void addToTrackList() {
+        
         SharedPreferences.Editor prefEditor = sharedPreferences.edit();
         prefEditor.putString(LAST_TRACK, trackName);
         Set<String> trackSet = sharedPreferences.getStringSet(ALL_TRACK, null);
@@ -250,20 +285,46 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
     public boolean onContextItemSelected(MenuItem item) {
 
         AdapterView.AdapterContextMenuInfo itemInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        Set<String> trackSet;
         switch (item.getItemId()) {
             case R.id.run:
-                break;
-            case R.id.delete:
-                Set<String> trackSet = sharedPreferences.getStringSet(ALL_TRACK, null);
+                trackSet = sharedPreferences.getStringSet(ALL_TRACK, null);
                 if (trackSet != null) {
                     list.clear();
                     list.addAll(trackSet);
+                    runningTrack(list.get(itemInfo.position));
+                    changeMode(TRACK_MODE);
+                }
+                break;
+            case R.id.delete:
+                trackSet = sharedPreferences.getStringSet(ALL_TRACK, null);
+                if (trackSet != null) {
+                    list.clear();
+                    list.addAll(trackSet);
+                    String s = list.get(itemInfo.position);
                     list.remove(itemInfo.position);
                     SharedPreferences.Editor prefEditor = sharedPreferences.edit();
                     trackSet = new HashSet<String>(list);
                     prefEditor.putStringSet(ALL_TRACK,trackSet);
                     prefEditor.commit();
                     myAdapter.notifyDataSetChanged();
+                    DataStorage.deleteTrack(s);
+
+                }
+                break;
+
+            case R.id.stop:
+                trackSet = sharedPreferences.getStringSet(ALL_TRACK, null);
+                if (trackSet != null) {
+                    list.clear();
+                    list.addAll(trackSet);
+                    String s = sharedPreferences.getString(RUNNING_TRACK,null);
+
+                    if(s!=null && s.equals(list.get(itemInfo.position))) {
+
+                        runningTrack(NONE);
+                        changeMode(REAL_MODE);
+                    }
                 }
                 break;
         }
@@ -272,12 +333,19 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         return super.onContextItemSelected(item);
     }
 
+    private void runningTrack(String track) {
+
+        SharedPreferences.Editor prefEditor = sharedPreferences.edit();
+        prefEditor.putString(RUNNING_TRACK, track);
+        prefEditor.commit();
+    }
+
 
     private void startService() {
 
-        final String KEY_INTERVAL = "key";
-        final String KEY_USERNAME = "usr";
-        final String KEY_PASSWORD = "pass";
+        final String KEY_INTERVAL = "KEY";
+        final String KEY_USERNAME = "USR";
+        final String KEY_PASSWORD = "PASS";
         int interval = 10000;
 
         getCredentials();
@@ -289,14 +357,16 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         myIntent.putExtra(KEY_INTERVAL,interval);
         myIntent.putExtra(KEY_USERNAME,username);
         myIntent.putExtra(KEY_PASSWORD,password);
+        myIntent.putExtra(LAST_TRACK,trackName);
         getActivity().startService(myIntent);
     }
 
     private void getCredentials() {
-        SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, Activity.MODE_PRIVATE);
+        SharedPreferences prefGet = getActivity().getSharedPreferences(PREFERENCEID, getActivity().MODE_PRIVATE);
         username = prefGet.getString("username", "bbbmetropolia@gmail.com");
         password = prefGet.getString("password", "badbadboys0");
     }
+
 
 
 }
