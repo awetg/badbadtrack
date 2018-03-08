@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class DataStorage {
 
     private static Context context;
-    public static TrackData trackData;
+    private static TrackData trackData;
 
 
 

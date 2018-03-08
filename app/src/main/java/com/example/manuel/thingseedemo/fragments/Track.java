@@ -329,7 +329,8 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         SharedPreferences.Editor prefEditor = sharedPreferences.edit();
         prefEditor.putString(RUNNING_TRACK, track);
         prefEditor.commit();
-        DataStorage.loadData(track);
+        if (track != NONE)
+            DataStorage.loadData(track);
     }
 
 
