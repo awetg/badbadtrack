@@ -68,6 +68,16 @@ public class TrackService extends Service {
         trackData.start(10000);
         DataStorage.setTrackData(trackData);
 
+        if (handlerThread.isAlive() || handlerThread.getState() != Thread.State.NEW) {
+            try {
+                handlerThread.quitSafely();
+            } catch (Exception ex){
+
+            }
+
+            handlerThread = new HandlerThread("RecorderHandlerThread");
+        }
+
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
         handler.post(runnable);

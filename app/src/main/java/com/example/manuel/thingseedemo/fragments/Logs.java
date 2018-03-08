@@ -102,8 +102,8 @@ public class Logs extends Fragment {
         timeSeekBar.setProgress(0);
         long startTimestamp = System.currentTimeMillis();
 //        realStartTimestamp = startTimestamp;
-        String dateString  = TimestampDateHandler.timestampToDate(startTimestamp);
-        tdate.setText(dateString);
+        String beginningMessage  = "Waiting for connection...";
+        tdate.setText(beginningMessage);
 
         checkAndRefreshState();
 
@@ -171,11 +171,16 @@ public class Logs extends Fragment {
 
         //Log.d("INFO", "Temperature Data contains n. elements: " + trackData.getTemperatureStream().sampleCount());
 
-        Double temperature, speed, impact, pressure;
+        Double temperature, speed, impact, pressure, battery, altitude, latitude, longitude, distance;
         temperature = dataAtTime.getTemperature();
-        speed = dataAtTime.getImpact();
-        impact = dataAtTime.getDistance();
-        pressure = dataAtTime.getBattery();
+        speed = dataAtTime.getSpeed();
+        impact = dataAtTime.getImpact();
+        pressure = dataAtTime.getPressure();
+        battery = dataAtTime.getBattery();
+        altitude = dataAtTime.getAltitude();
+        latitude = dataAtTime.getLatitude();
+        longitude = dataAtTime.getLongitude();
+        distance = dataAtTime.getDistance();
 
 
         if (temperature != null)
@@ -184,9 +189,9 @@ public class Logs extends Fragment {
             ((TextView) myView.findViewById(R.id.temperature)).setText("No data");
 
         if (speed != null)
-            ((TextView) myView.findViewById(R.id.velocity)).setText(Double.toString(speed));
+            ((TextView) myView.findViewById(R.id.speed)).setText(Double.toString(speed));
         else
-            ((TextView) myView.findViewById(R.id.velocity)).setText("No data");
+            ((TextView) myView.findViewById(R.id.speed)).setText("No data");
 
         if (impact != null)
             ((TextView) myView.findViewById(R.id.impact)).setText(Double.toString(impact));
@@ -197,6 +202,31 @@ public class Logs extends Fragment {
             ((TextView) myView.findViewById(R.id.pressure)).setText(Double.toString(pressure));
         else
             ((TextView) myView.findViewById(R.id.pressure)).setText("No data");
+
+        if (battery != null)
+            ((TextView) myView.findViewById(R.id.battery)).setText(Double.toString(battery));
+        else
+            ((TextView) myView.findViewById(R.id.battery)).setText("No data");
+
+        if (altitude != null)
+            ((TextView) myView.findViewById(R.id.altitude)).setText(Double.toString(altitude));
+        else
+            ((TextView) myView.findViewById(R.id.altitude)).setText("No data");
+
+        if (latitude != null)
+            ((TextView) myView.findViewById(R.id.latitude)).setText(Double.toString(latitude));
+        else
+            ((TextView) myView.findViewById(R.id.latitude)).setText("No data");
+
+        if (longitude != null)
+            ((TextView) myView.findViewById(R.id.longitude)).setText(Double.toString(longitude));
+        else
+            ((TextView) myView.findViewById(R.id.longitude)).setText("No data");
+
+        if (distance != null)
+            ((TextView) myView.findViewById(R.id.distance)).setText(Double.toString(distance));
+        else
+            ((TextView) myView.findViewById(R.id.distance)).setText("No data");
 
     }
 
@@ -219,28 +249,13 @@ public class Logs extends Fragment {
 
     public void getCurrentData() {
 
-        Log.d("INFO", "Executing post-fetching action");
+        //Log.d("INFO", "Executing post-fetching action");
 
         if (realTimeRecorder == null || realTimeRecorder.getLastResultState() != "OK")
             return;
 
-        currentData = realTimeRecorder.getAllLastData();
+        currentData = realTimeRecorder.getData().getAllAtTime(System.currentTimeMillis());
 
-    }
-
-    public void resetTrack() {
-        Log.d("USR", "Button pressed");
-
-        //SimpleDateFormat sdf = new SimpleDateFormat("dd MM yyyy, h:mm a");
-
-        trackData.start(System.currentTimeMillis(),15000);
-
-        realTimeRecorder = new RealTimeRecorder(username, password, REQUEST_DELAY);
-        realTimeRecorder.start(handler);
-
-        // we make the request to the Thingsee cloud server in backgroud
-        // (AsyncTask) so that we don't block the UI (to prevent ANR state, Android Not Responding)
-        //new Logs.TalkToThingsee().execute("QueryState");
     }
 
 }

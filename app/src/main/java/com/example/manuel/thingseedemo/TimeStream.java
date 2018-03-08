@@ -286,9 +286,9 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
                 return null;
         }
 
-        //If we are before the first element (after is the first element) or if after is not valid
+        //If there is no data, we are before the first element (after is the first element) or if after is not valid
         //the return null
-        if (after < 1 || after > data.size()){
+        if (data.size() == 0 || after == 0 || after > data.size()){
             return null;
         }
 
@@ -296,8 +296,8 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         //but only if the requested time is not much later
         if (time - getLastTimestamp() > outOfBoundMargin)
             return  null;
-        if (before == data.size() - 1)
-            return data.get(before);
+        if (after == -1 || before == data.size() - 1)
+            return data.get(data.size() - 1);
 
 
         //Linearly interpolate between the two values

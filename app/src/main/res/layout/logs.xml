@@ -17,71 +17,6 @@
         android:padding="5dp"
         android:layout_margin="10dp"
         android:text="Date and time"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-        <TextView
-            android:id="@+id/impact"
-            android:layout_width="20dp"
-            android:layout_height="120dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_margin="20dp"
-            android:layout_gravity="center_horizontal"
-            android:text="Impact"
-            android:textSize="20dp"
-            android:textColor="#FFFF"
-            android:background="@drawable/back"
-            android:drawableBottom="@drawable/combat"/>
-
-        <TextView
-            android:id="@+id/temperature"
-            android:layout_width="20dp"
-            android:layout_height="120dp"
-            android:layout_margin="20dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_gravity="center_horizontal"
-            android:text="Temperature"
-            android:textColor="#FFFF"
-            android:textSize="20dp"
-            android:background="@drawable/back"
-            android:drawableBottom="@drawable/temp"/>
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/velocity"
-            android:layout_width="30dp"
-            android:layout_height="120dp"
-            android:layout_margin="20dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_gravity="center_horizontal"
-            android:padding="10dp"
-            android:text="Velocity"
-            android:textColor="#FFFF"
-            android:textSize="20dp"
-            android:background="@drawable/back"
-            android:drawableBottom="@drawable/velocity"/>
-
-        <TextView
-            android:id="@+id/pressure"
-            android:layout_width="30dp"
-            android:layout_height="120dp"
-            android:layout_margin="20dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_gravity="center_horizontal"
-            android:text="Pressure"
-            android:textColor="#FFFF"
-            android:textSize="20dp"
-            android:background="@drawable/back"
-            android:drawableBottom="@drawable/pressure"/>
-
-    </LinearLayout>
 
     <SeekBar
         android:id="@+id/mainSeekBar"
@@ -89,20 +24,154 @@
         android:layout_height="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
         android:background="#ffffff"
         android:max="1000"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleX="1"
+        android:scaleY="1">
+
+        <TextView
+            android:id="@+id/impact"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="1dp"
+
+            android:layout_weight="1"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/combat"
+            android:gravity="center"
+            android:text="Impact"
+            android:textColor="#FFFF"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/temperature"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="Temperature"
+            android:textColor="#FFFF"
+            android:textSize="18dp"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/temp"/>
+
+        <TextView
+            android:id="@+id/speed"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp"
+            android:text="Speed"
+            android:textColor="#FFFF"
+            android:textSize="18dp"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/velocity"/>
+
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/battery"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="Battery"
+            android:textColor="#FFFF"
+            android:textSize="18dp"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/battery"/>
+        <TextView
+            android:id="@+id/distance"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp"
+            android:text="Distance"
+            android:textColor="#FFFF"
+            android:textSize="18dp"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/distance"/>
+
+        <TextView
+            android:id="@+id/pressure"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="Pressure"
+            android:textColor="#FFFF"
+            android:textSize="18dp"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/pressure" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <Button
-            android:id="@+id/getDataButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/Utime"
-            android:layout_margin="10dp"
-            android:text="Get Data"></Button>
+
+        <TextView
+            android:id="@+id/altitude"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="Altitude"
+            android:textColor="#FFFF"
+            android:textSize="18dp"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/altitude"/>
+        <TextView
+            android:id="@+id/latitude"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="Latitude"
+            android:textColor="#FFFF"
+            android:textSize="18dp"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/latitudebw"/>
+        <TextView
+            android:id="@+id/longitude"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="Longitude"
+            android:textColor="#FFFF"
+            android:textSize="18dp"
+            android:background="@drawable/back"
+            android:drawableBottom="@drawable/longitudebw"/>
+
+
     </LinearLayout>
+
 </LinearLayout>

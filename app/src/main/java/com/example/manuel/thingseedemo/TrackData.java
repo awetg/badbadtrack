@@ -62,11 +62,13 @@ public class TrackData implements Serializable {
         outOfBoundMargin = outOfBoundMarginTime;
 
         location = new TimeStream<>(outOfBoundMargin);
-        pressure = new TimeStream<>(outOfBoundMargin);
+        pressure = new TimeStream<>(outOfBoundMargin*3);
         speed = new TimeStream<>(outOfBoundMargin);
-        impact = new TimeStream<>(outOfBoundMargin);
-        temperature = new TimeStream<>(outOfBoundMargin);
-        battery = new TimeStream<>(outOfBoundMargin);
+        impact = new TimeStream<>(outOfBoundMargin/3);
+        temperature = new TimeStream<>(outOfBoundMargin*3);
+        battery = new TimeStream<>(outOfBoundMargin*9);
+
+        //impact.setInterpolation(false);
 
         distance = new TimeStream<>(outOfBoundMargin);
         initialized = true;
@@ -85,11 +87,11 @@ public class TrackData implements Serializable {
         outOfBoundMargin = outOfBoundMarginTime;
 
         location = new TimeStream<>(outOfBoundMargin);
-        pressure = new TimeStream<>(outOfBoundMargin);
+        pressure = new TimeStream<>(outOfBoundMargin*3);
         speed = new TimeStream<>(outOfBoundMargin);
-        impact = new TimeStream<>(outOfBoundMargin);
-        temperature = new TimeStream<>(outOfBoundMargin);
-        battery = new TimeStream<>(outOfBoundMargin);
+        impact = new TimeStream<>(outOfBoundMargin/3);
+        temperature = new TimeStream<>(outOfBoundMargin*3);
+        battery = new TimeStream<>(outOfBoundMargin*9);
 
         distance = new TimeStream<>(outOfBoundMargin);
         initialized = true;
@@ -137,7 +139,7 @@ public class TrackData implements Serializable {
             TimeStream<LocationData> incomingLocations = ts.getLocationStream(eventData, outOfBoundMargin);
             TimeStream<ScalarData> incomingTemperatures = ts.getScalarStream(eventData, ThingSee.TEMPERATURE_DATA, outOfBoundMargin*3);
             TimeStream<ScalarData> incomingPressure = ts.getScalarStream(eventData, ThingSee.PRESSURE_DATA, outOfBoundMargin*3);
-            TimeStream<ScalarData> incomingImpact = ts.getScalarStream(eventData, ThingSee.IMPACT_DATA, outOfBoundMargin);
+            TimeStream<ScalarData> incomingImpact = ts.getScalarStream(eventData, ThingSee.IMPACT_DATA, outOfBoundMargin/3);
             TimeStream<ScalarData> incomingBattery = ts.getScalarStream(eventData, ThingSee.BATTERY_DATA, outOfBoundMargin*9);
             TimeStream<ScalarData> incomingSpeed = ts.getScalarStream(eventData, ThingSee.SPEED_DATA, outOfBoundMargin);
             /*Log.d("INFO", "Got " + incomingTemperatures.sampleCount() + " temperatures");
@@ -400,7 +402,7 @@ public class TrackData implements Serializable {
     public class AllDataStructure{
 
         long timestamp; //Timestamp must not be null
-        Double latitude, longitude;
+        Double latitude, longitude, altitude;
         Double pressure;
         Double impact;
         Double battery;
@@ -413,6 +415,7 @@ public class TrackData implements Serializable {
             if (loc != null) {
                 latitude = loc.getLatitude();
                 longitude = loc.getLongitude();
+                altitude = loc.getAltitude();
             }
             if (p != null)
                 pressure=p.getValue();
@@ -435,6 +438,11 @@ public class TrackData implements Serializable {
         @Nullable
         public Double getLatitude(){
             return latitude;
+        }
+
+        @Nullable
+        public Double getAltitude(){
+            return altitude;
         }
 
         @Nullable
