@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.example.manuel.thingseedemo.TrackData;
+import com.example.manuel.thingseedemo.fragments.Track;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,9 +22,16 @@ import java.util.ArrayList;
 public class DataStorage {
 
     private static Context context;
+    public static TrackData trackData;
+
+
 
     public static void init(Context c) {
         context = c;
+    }
+
+    public static TrackData getTrackData(){
+        return trackData;
     }
 
 
@@ -45,14 +53,14 @@ public class DataStorage {
 
 
 
-    public static TrackData loadData(String trackName) {
+    public static void loadData(String trackName) {
         String s = trackName + ".tk";
-        TrackData trackData = new TrackData();
+        TrackData tempData = new TrackData();
 
         try {
 
             ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(new File(context.getFilesDir(),s)));
-            trackData = (TrackData) objectInputStream.readObject();
+            tempData = (TrackData) objectInputStream.readObject();
             Log.d("dataStorage :","loaded data");
 
         } catch (IOException e) {
@@ -60,7 +68,7 @@ public class DataStorage {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return trackData;
+        trackData = tempData;
 
     }
 

@@ -105,8 +105,6 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
             real = false;
 
-            if(!trackName.equals(NONE) && !trackName.isEmpty())
-                getTrack(trackName);
         }
 
 
@@ -114,7 +112,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
     }
 
     private void getTrack(String trackName) {
-        TrackData trackData = DataStorage.loadData(trackName);
+        TrackData trackData = DataStorage.getTrackData();
         if(trackData!=null) {
 
             polylineOptions = new PolylineOptions();
@@ -167,8 +165,9 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
         }
         else {
+            getTrack(trackName);
 
-        if(polylineOptions!=null) {
+            if(polylineOptions!=null) {
 
             // adding this location to make the line longer, can't be seen only 3 location data yet
             polylineOptions.add(metropolia);

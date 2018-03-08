@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.manuel.thingseedemo.LocationData;
 import com.example.manuel.thingseedemo.R;
@@ -129,26 +130,6 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
     }
 
-    private void loadData(String s) {
-
-
-        TrackData trackData = DataStorage.loadData(s);
-        if(trackData!=null) {
-
-            TimeStream<LocationData> locationDataTimeStream = trackData.getLocationStream();
-            if(locationDataTimeStream!=null) {
-
-                ArrayList<LocationData> locationData = locationDataTimeStream.createSamples(1000);
-                for (int i = 1; i < locationData.size(); i++) {
-                    Log.d("location : longitue - ", locationData.get(i).getLongitude() + "");
-                }
-            }
-        }
-
-        ArrayList<String> gh = DataStorage.savedTracksNames();
-
-
-    }
 
 
     private void queryDialog(final Context context) {
@@ -177,11 +158,15 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                                 // get user input and set it to result
                                 trackName = nameEditText.getText().toString();
 
-                                changeMode(RECORD_MODE);
-                                addToTrackList();
-                                setView(R.layout.current_record);
-                                getViewItems(R.layout.current_record);
-                                startService();
+                                if(addToTrackList()) {
+                                    changeMode(RECORD_MODE);
+                                    setView(R.layout.current_record);
+                                    getViewItems(R.layout.current_record);
+                                    startService();
+                                }
+                                else
+                                    Toast.makeText(getActivity(),"Track with same name already exist",Toast.LENGTH_LONG).show();
+
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -237,20 +222,26 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         prefEditor.commit();
     }
 
-    private void addToTrackList() {
+    private boolean addToTrackList() {
         
         SharedPreferences.Editor prefEditor = sharedPreferences.edit();
         prefEditor.putString(LAST_TRACK, trackName);
         Set<String> trackSet = sharedPreferences.getStringSet(ALL_TRACK, null);
         if (trackSet != null) {
-            trackSet.add(trackName);
-            prefEditor.putStringSet(ALL_TRACK, trackSet);
+            if(!trackSet.contains(trackName)){
+                trackSet.add(trackName);
+                prefEditor.putStringSet(ALL_TRACK, trackSet);
+                prefEditor.commit();
+                return true;
+            }
+            else return false;
         } else {
             Set<String> set = new HashSet<String>();
             set.add(trackName);
             prefEditor.putStringSet(ALL_TRACK, set);
+            return true;
         }
-        prefEditor.commit();
+
 
 
     }
@@ -338,6 +329,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         SharedPreferences.Editor prefEditor = sharedPreferences.edit();
         prefEditor.putString(RUNNING_TRACK, track);
         prefEditor.commit();
+        DataStorage.loadData(track);
     }
 
 
