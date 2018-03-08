@@ -129,26 +129,6 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
     }
 
-    private void loadData(String s) {
-
-
-        TrackData trackData = DataStorage.loadData(s);
-        if(trackData!=null) {
-
-            TimeStream<LocationData> locationDataTimeStream = trackData.getLocationStream();
-            if(locationDataTimeStream!=null) {
-
-                ArrayList<LocationData> locationData = locationDataTimeStream.createSamples(1000);
-                for (int i = 1; i < locationData.size(); i++) {
-                    Log.d("location : longitue - ", locationData.get(i).getLongitude() + "");
-                }
-            }
-        }
-
-        ArrayList<String> gh = DataStorage.savedTracksNames();
-
-
-    }
 
 
     private void queryDialog(final Context context) {
@@ -243,8 +223,10 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         prefEditor.putString(LAST_TRACK, trackName);
         Set<String> trackSet = sharedPreferences.getStringSet(ALL_TRACK, null);
         if (trackSet != null) {
+            if(!trackSet.contains(trackName)){
             trackSet.add(trackName);
             prefEditor.putStringSet(ALL_TRACK, trackSet);
+            }
         } else {
             Set<String> set = new HashSet<String>();
             set.add(trackName);
@@ -338,6 +320,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
         SharedPreferences.Editor prefEditor = sharedPreferences.edit();
         prefEditor.putString(RUNNING_TRACK, track);
         prefEditor.commit();
+        DataStorage.loadData(track);
     }
 
 

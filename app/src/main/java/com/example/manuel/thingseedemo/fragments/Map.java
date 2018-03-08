@@ -122,7 +122,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
     }
 
     private void getTrack(String trackName) {
-        TrackData trackData = DataStorage.loadData(trackName);
+        TrackData trackData = DataStorage.getTrackData();
         if(trackData!=null) {
 
             polylineOptions = new PolylineOptions();
