@@ -12,6 +12,12 @@ import android.widget.TextView;
  * Created by manuel on 2/23/18.
  */
 
+/**
+ * DEPRECATED
+ * Handles the fetching of the data for the Logs fragment, for debugging
+ * In the final application, the same job is carried out by TrackService
+ */
+@Deprecated
 public class DataRecorder {
     //private static final int    MAXEVENTS = 10;
     //private static final int    REQUEST_DELAY = 2000;

@@ -22,12 +22,21 @@ import java.util.List;
  */
 
 
-
+/**
+ * Contains a series of TimeStream for the data the application need to collect
+ */
 public class TrackData implements Serializable {
 
+    //How much time after the last element will cause the stream to return null data instead of the last element
+    //Note: In the single TimeStreams, the value can be scaled to fit specific needs
     private long outOfBoundMargin;
+
     private long startTimestamp, firstTimestamp; //Requested (start) and real (first) time of start of the recording
+
+    //Timestamp of the latest sample in any of the streams
     private long currentTimestamp;
+
+    //Data TimeStreams
     private TimeStream<LocationData> location;
     private TimeStream<ScalarData> pressure;
     private TimeStream<ScalarData> impact;
@@ -36,9 +45,15 @@ public class TrackData implements Serializable {
     private TimeStream<ScalarData> speed;
     private TimeStream<ScalarData> distance;
 
+    //Has the track been initialized (started) and does it contain data?
     boolean initialized = false;
     boolean empty = true;
 
+    /**
+     * Start the track at a specific timestamp (ignoring everything coming from before)
+     * @param timestamp
+     * @param outOfBoundMarginTime
+     */
     public void start(long timestamp, long outOfBoundMarginTime){
         clear();
         startTimestamp = timestamp;
@@ -58,6 +73,10 @@ public class TrackData implements Serializable {
 
     }
 
+    /**
+     * Start the track from when there is available data
+     * @param outOfBoundMarginTime
+     */
     public void start(long outOfBoundMarginTime){
         clear();
         startTimestamp = 0;
@@ -77,40 +96,58 @@ public class TrackData implements Serializable {
 
     }
 
+    /**
+     * Fetch more data from the ThingSee object and insert it into the streams of the DataTrack
+     * @param ts ThingSee object
+     */
     void recordMore(ThingSee ts){
+        //Change "fake" to true to use fake data instead of real one (for debugging)
         final boolean fake = false;
 
+        //If the track has not been started we can not record
+        if (!initialized) {
+            Log.e("TRACK", "Error: Trying to record a non-initialized track.");
+            return;
+        }
+
         try {
-            Log.d("INFO", "TrackData fetching events...");
+            //Log.d("INFO", "TrackData fetching events...");
             JSONArray eventData = null;
+
+            //Array of the timestamps of the events, used to compute the time range of the data
             ArrayList<Long> times = new ArrayList<>();
 
             if (!fake){
+                //Get real data
                eventData = ts.Events(ts.Devices(), currentTimestamp);
             }
 
+            //Set the ThingSee to generate fake data
             if (fake)
                 ts.setFake();
 
-            Log.d("INFO", "Fetched " + (eventData == null ? 0 : eventData.length()) + " events");
+            //Log.d("INFO", "Fetched " + (eventData == null ? 0 : eventData.length()) + " events");
 
+            //If we are in real mode but there is no data, then exit
             if (!fake && eventData != null && eventData.length() == 0)
                 return;
 
 
-
+            //Get all the stream from the data (real or fake)
             TimeStream<LocationData> incomingLocations = ts.getLocationStream(eventData, outOfBoundMargin);
             TimeStream<ScalarData> incomingTemperatures = ts.getScalarStream(eventData, ThingSee.TEMPERATURE_DATA, outOfBoundMargin*3);
             TimeStream<ScalarData> incomingPressure = ts.getScalarStream(eventData, ThingSee.PRESSURE_DATA, outOfBoundMargin*3);
             TimeStream<ScalarData> incomingImpact = ts.getScalarStream(eventData, ThingSee.IMPACT_DATA, outOfBoundMargin);
             TimeStream<ScalarData> incomingBattery = ts.getScalarStream(eventData, ThingSee.BATTERY_DATA, outOfBoundMargin*9);
             TimeStream<ScalarData> incomingSpeed = ts.getScalarStream(eventData, ThingSee.SPEED_DATA, outOfBoundMargin);
-            Log.d("INFO", "Got " + incomingTemperatures.sampleCount() + " temperatures");
+            /*Log.d("INFO", "Got " + incomingTemperatures.sampleCount() + " temperatures");
             Log.d("INFO", "Got " + incomingLocations.sampleCount() + " locations");
             Log.d("INFO", "Got " + incomingBattery.sampleCount() + " battery");
             Log.d("INFO", "Got " + incomingSpeed.sampleCount() + " speed");
             Log.d("INFO", "Got " + incomingImpact.sampleCount() + " impact");
-            Log.d("INFO", "Got " + incomingPressure.sampleCount() + " pressure");
+            Log.d("INFO", "Got " + incomingPressure.sampleCount() + " pressure");*/
+
+            //Add the incoming streams to the stored ones, if they don't require additional computation
             pressure.addStream(incomingPressure);
             impact.addStream(incomingImpact);
             battery.addStream(incomingBattery);
@@ -131,12 +168,15 @@ public class TrackData implements Serializable {
             if (incomingTemperatures.sampleCount() > 0)
             {times.add(incomingTemperatures.getLastTimestamp()); times.add(incomingTemperatures.getFirst().getTime());}
 
+            //If there is no timestamp, exit (this should never happen)
             if (times.size() < 1)
                 return;
 
+            //Initialize the first and last timestamp for the min and max algorithms
             long first = times.get(0);
             long last = first;
 
+            //Find the min (first) and max (last) of the timestamps
             for (int i = 0; i < times.size(); i++){
                 long cur = times.get(i);
                 if (cur > last)
@@ -146,23 +186,28 @@ public class TrackData implements Serializable {
                     first = cur;
             }
 
+            //If there is no data in the track, use the timestamp of the first piece of data as
+            //the beginning of the track
             if (isEmpty()) {
                 firstTimestamp = first;
-                Log.d("TIMESEEK", "Set first timestamp: " + firstTimestamp);
+                //Log.d("TIMESEEK", "Set first timestamp: " + firstTimestamp);
             }
 
-            Log.d("TIMESEEK", "First fetched: " + TimestampDateHandler.timestampToDate(first));
+            /*Log.d("TIMESEEK", "First fetched: " + TimestampDateHandler.timestampToDate(first));
             Log.d("TIMESEEK", "Last fetched: " + TimestampDateHandler.timestampToDate(last));
 
 
             Log.d("INFO", "Got " + (eventData == null ? 0 : eventData.length()) + " data up to " + last);
 
-            Log.d("INFO", "Total temperatures " + temperature.sampleCount());
+            Log.d("INFO", "Total temperatures " + temperature.sampleCount());*/
 
+            //Value of previous distance to add to the new distances computed from the incoming data
             double constant = 0.0;
 
+            //If both the old and the new locations are not empty, we need to take the distance computed
+            //at the last old location, and then add the distance between the last old and the first new
+            //location. This value will be the constant to add to the locations computed in the incoming streams
             if (location.isNotEmpty() && incomingLocations.isNotEmpty()){
-                //double dt = incomingLocations.getLast().getTime() - location.getLast().getTime();
                 ScalarData lastDistance = distance.getLast();
                 LocationData lastLocation = location.getLast();
 
@@ -180,8 +225,12 @@ public class TrackData implements Serializable {
                // Log.d("DIST", "Distance calculation constant: " + constant);
             }
 
+            //Turn the constant to final, so it can be used in the anonymous class below
             final double finalConstant = constant;
 
+            //Compute the new distances by first taking the length integral of the incoming location,
+            //and the summing to each of its elements (by using map) the previous distance computed
+            //before in finalConstant
             TimeStream<ScalarData> newDistances = incomingLocations.integrate(CalculusTools.vectorArcDistIntegral).map(new TimeStreamMapToScalar() {
                 @Override
                 public double map(Object x) {
@@ -189,27 +238,35 @@ public class TrackData implements Serializable {
                 }
             });
 
+            //Added the new distances and locations to the stored streams
             distance.addStream(newDistances);
-
             location.addStream(incomingLocations);
 
+            //Set the current timestamp right after the last data we got
             currentTimestamp = last + 1;
-            Log.d("INFO", "TrackData.currentTimestamp = " + currentTimestamp);
+            //Log.d("INFO", "TrackData.currentTimestamp = " + currentTimestamp);
 
+            //The track is now surely initialized and not empty
             initialized = true;
             empty = false;
 
         } catch (Exception ex) {
-            Log.e("Error", ex.getMessage());
+            Log.e("TRACK", "Error: " + ex.getMessage());
         }
     }
 
+    /**
+     * Has the track been started?
+     * @return
+     */
     public boolean isInitialized(){
         return initialized;
     }
 
-
-    void clear(){
+    /**
+     * Clear an already started strack.
+     */
+    public void clear(){
         if (initialized) {
             location.clear();
             pressure.clear();
@@ -220,28 +277,50 @@ public class TrackData implements Serializable {
             distance.clear();
             startTimestamp = 0;
             currentTimestamp = 0;
+            empty = true;
         }
     }
 
+    /**
+     * Is there not any data recorded?
+     * @return
+     */
     public boolean isEmpty(){
         return empty;
     }
 
+    /**
+     * Is there any data recorded?
+     * @return
+     */
     public boolean isNotEmpty(){
         return !isEmpty();
     }
 
+    /**
+     * Get the timestamp of the first piece of data recorded by this track
+     * @return
+     */
     public long getFirstTimestamp(){
         return firstTimestamp;
     }
 
+    /**
+     * Get the timestamp passed to this track on its start
+     * @return
+     */
     public long getStartTimestamp(){
         return startTimestamp;
     }
 
+    /**
+     * Get the timestamp of the last recorded element in the track
+     * @return
+     */
     public long getCurrentTimestamp(){
         return currentTimestamp;
     }
+
 
     public TimeStream<LocationData> getLocationStream() {return location;}
     public TimeStream<ScalarData> getSpeedStream() {return speed;}
@@ -251,6 +330,10 @@ public class TrackData implements Serializable {
     public TimeStream<ScalarData> getImpactStream() {return impact;}
     public TimeStream<ScalarData> getBatteryStream() {return battery;}
 
+    /**
+     * Get the last values of all the streams
+     * @return
+     */
     public AllDataStructure getAllLast(){
         ArrayList<Long> times = new ArrayList<>();
 
@@ -279,6 +362,10 @@ public class TrackData implements Serializable {
                 distance.getLast());
     }
 
+    /**
+     * Get the values of all the streams at a certain point in time
+     * @return
+     */
     public AllDataStructure getAllAtTime(long time){
         return new AllDataStructure(time,
                 location.getDataAtTime(time),
@@ -290,6 +377,10 @@ public class TrackData implements Serializable {
                 distance.getDataAtTime(time));
     }
 
+    /**
+     * Get an ArrayList of the values of all the streams every interval amount of time
+     * @return
+     */
     public ArrayList<AllDataStructure> createSamples(long interval){
         ArrayList<AllDataStructure> lst = new ArrayList<>();
         long cur = startTimestamp;
@@ -302,7 +393,10 @@ public class TrackData implements Serializable {
         return lst;
     }
 
-
+    /**
+     * Helper class holding a reference to an instance of all the physical data the application handles at
+     * a certain point in time
+     */
     public class AllDataStructure{
 
         long timestamp; //Timestamp must not be null
