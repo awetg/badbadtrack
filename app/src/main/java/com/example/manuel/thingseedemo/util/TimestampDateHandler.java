@@ -13,6 +13,9 @@ import java.util.Date;
  * Created by manuel on 3/7/18.
  */
 
+/**
+ * Convert from string date to timestamp and from timestamp to string date
+ */
 public class TimestampDateHandler {
     private static SimpleDateFormat sdf = new SimpleDateFormat("dd MM yyyy, h:mm:ss a");
     @Nullable
