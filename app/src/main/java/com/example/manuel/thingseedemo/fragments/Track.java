@@ -48,15 +48,15 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
     LayoutInflater inflater;
     SharedPreferences sharedPreferences;
 
-    static final String MODE_KEY = "MODE_KEY";
-    static final String MODE = "MODE";
-    static final String REAL_MODE = "REAL";
-    static final String RECORD_MODE = "RECORD";
-    static final String TRACK_MODE = "TRACK";
-    static final String LAST_TRACK = "LAST";
-    static final String ALL_TRACK = "ALL";
-    static final String RUNNING_TRACK = "RUNNING";
-    static final String NONE = "NONE";
+    public static final String MODE_KEY = "MODE_KEY";
+    public static final String MODE = "MODE";
+    public static final String REAL_MODE = "REAL";
+    public static final String RECORD_MODE = "RECORD";
+    public static final String TRACK_MODE = "TRACK";
+    public static final String LAST_TRACK = "LAST";
+    public static final String ALL_TRACK = "ALL";
+    public static final String RUNNING_TRACK = "RUNNING";
+    public static final String NONE = "NONE";
     private static final String PREFERENCEID = "Credentials";
 
 
@@ -87,7 +87,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                              Bundle savedInstanceState) {
 
         sharedPreferences = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
-        String getMode = sharedPreferences.getString(MODE, "");
+        String getMode = sharedPreferences.getString(MODE, REAL_MODE);
         if (getMode.equals(REAL_MODE) || getMode.isEmpty()) {
 
             myView = inflater.inflate(R.layout.fragment_track, container, false);

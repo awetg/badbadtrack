@@ -15,7 +15,7 @@ import android.widget.TextView;
 /**
  * DEPRECATED
  * Handles the fetching of the data for the Logs fragment, for debugging
- * In the final application, the same job is carried out by TrackService
+ * In the final application, the same job is carried out by TrackService and RealTimeRecorder
  */
 @Deprecated
 public class DataRecorder {
