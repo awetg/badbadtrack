@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.manuel.thingseedemo.fragments.Track;
 import com.example.manuel.thingseedemo.util.DataStorage;
 
 /**
@@ -98,7 +99,8 @@ public class TrackService extends Service {
     @Override
     public void onDestroy() {
         Log.d("SERVICE CLASS: " ,"TRACK DATA IS NULL: " + (trackName==null));
-        DataStorage.storeData(trackData,trackName);
+        if (trackName != Track.NONE)
+            DataStorage.storeData(trackData,trackName);
         handlerThread.quitSafely();
         super.onDestroy();
     }
