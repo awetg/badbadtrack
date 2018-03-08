@@ -21,6 +21,8 @@ import java.util.List;
  * Created by manuel on 2/19/18.
  */
 
+
+
 public class TrackData implements Serializable {
 
     private long outOfBoundMargin;
@@ -288,7 +290,7 @@ public class TrackData implements Serializable {
                 distance.getDataAtTime(time));
     }
 
-    public List<AllDataStructure> createSamples(long interval){
+    public ArrayList<AllDataStructure> createSamples(long interval){
         ArrayList<AllDataStructure> lst = new ArrayList<>();
         long cur = startTimestamp;
 
