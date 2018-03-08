@@ -46,6 +46,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
     View myView;
     LayoutInflater inflater;
+
     SharedPreferences sharedPreferences;
 
     static final String MODE_KEY = "MODE_KEY";
@@ -84,7 +85,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                              Bundle savedInstanceState) {
 
         sharedPreferences = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
-        String getMode = sharedPreferences.getString(MODE, "");
+        String getMode = sharedPreferences.getString(MODE, REAL_MODE);
         if (getMode.equals(REAL_MODE) || getMode.isEmpty()) {
 
             myView = inflater.inflate(R.layout.fragment_track, container, false);
@@ -114,8 +115,8 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                 changeMode(REAL_MODE);
                 setView(R.layout.fragment_track);
                 getViewItems(R.layout.fragment_track);
-                if(myIntent!=null)
-                getActivity().stopService(myIntent);
+                getActivity().stopService(new Intent(getActivity(), TrackService.class));
+                //getActivity().stopService(myIntent);
                 break;
 
         }
@@ -304,7 +305,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                     String s = DataStorage.getCachedFileName();
 
                     if(s!=null && s.equals(list.get(itemInfo.position))) {
-
+                        DataStorage.setTrackData(null);
                         changeMode(REAL_MODE);
                     }
                 }
