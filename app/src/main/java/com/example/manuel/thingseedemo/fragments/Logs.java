@@ -58,12 +58,16 @@ public class Logs extends Fragment {
     };
 
     private void checkAndRefreshState(){
-        if (DataStorage.isRealtime()){
+        if (DataStorage.isRealtime() && !isRealtime){
             realTimeRecorder = new RealTimeRecorder(username, password, 5000);
             realTimeRecorder.start(handler);
             isRealtime = true;
             timeSeekBar.setEnabled(false);
-        } else {
+        } else if (DataStorage.isRealtime()) {
+
+        }
+        else {
+            isRealtime = false;
             if (realTimeRecorder != null){
                 realTimeRecorder.stop();
                 realTimeRecorder = null;
@@ -150,7 +154,7 @@ public class Logs extends Fragment {
     }
 
     public void showDataAtTime(long timestamp){
-        if (trackData == null || !trackData.isInitialized())
+        if (!isRealtime && (trackData == null || !trackData.isInitialized()))
             return;
 
         TrackData.AllDataStructure dataAtTime;

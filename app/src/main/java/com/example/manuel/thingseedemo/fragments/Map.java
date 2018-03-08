@@ -199,6 +199,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
         else {
             TrackData temp = dataRecorder.getData();
             LocationData locationData = temp.getLocationStream().getLast();
+            if (locationData == null)
+                return;
             String date = TimestampDateHandler.timestampToDate(locationData.getTime());
             LatLng lastLatLang = new LatLng(locationData.getLatitude(),locationData.getLongitude());
             MarkerOptions options1 = new MarkerOptions();
