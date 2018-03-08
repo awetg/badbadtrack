@@ -231,6 +231,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
             Set<String> set = new HashSet<String>();
             set.add(trackName);
             prefEditor.putStringSet(ALL_TRACK, set);
+            prefEditor.commit();
             return true;
         }
 
