@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:padding="20dp"
     tools:context="com.example.manuel.thingseedemo.fragments.Logs">
-    <EditText
+    <TextView
         android:id="@+id/date"
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -173,5 +173,17 @@
 
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:textSize="10dp"
+        android:padding="5dp"
+        android:layout_margin="12dp"
+        android:text=""/>
+
 
 </LinearLayout>

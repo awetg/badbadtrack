@@ -66,7 +66,7 @@ public class TrackService extends Service {
         startNotification();
 
         trackData.start(10000);
-        DataStorage.setTrackData(trackData);
+        DataStorage.setTrackData(trackData, trackName);
 
         if (handlerThread.isAlive() || handlerThread.getState() != Thread.State.NEW) {
             try {
@@ -128,6 +128,8 @@ public class TrackService extends Service {
         Log.d("SERVICE CLASS: " ,"TRACK DATA IS NULL: " + (trackName==null));
 
         DataStorage.storeData(trackData,trackName);
+        DataStorage.setTrackData(null);
+        DataStorage.setCurrentlyRecording(false);
         notificationManager.cancel(NOTIFICATION_ID);
         handlerThread.quitSafely();
         super.onDestroy();

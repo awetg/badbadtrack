@@ -24,6 +24,7 @@ public class DataStorage {
     private static Context context;
     private static TrackData trackData;
     private static String cachedFileName = null;
+    private static boolean isCurrentlyRecording = false;
 
 
 
@@ -41,6 +42,19 @@ public class DataStorage {
 
     public static void setTrackData(TrackData data){
         trackData = data;
+    }
+
+    public static void setTrackData(TrackData data, String name){
+        trackData = data;
+        cachedFileName = name;
+    }
+
+    public static boolean currentlyRecording(){
+        return isCurrentlyRecording;
+    }
+
+    public static void setCurrentlyRecording(boolean value){
+        isCurrentlyRecording = value;
     }
 
     public static void setRealtime(){

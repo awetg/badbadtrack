@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -42,7 +43,7 @@ public class Logs extends Fragment {
     private RealTimeRecorder realTimeRecorder;
 
     private View myView;
-    private EditText tdate;
+    private TextView tdate, tstatus;
     private SeekBar timeSeekBar;
     //private long startTimestamp = 0;
 //    private long realStartTimestamp = 0;
@@ -63,6 +64,7 @@ public class Logs extends Fragment {
             realTimeRecorder.start(handler);
             isRealtime = true;
             timeSeekBar.setEnabled(false);
+            tstatus.setText("Real time data");
         } else if (DataStorage.isRealtime()) {
 
         }
@@ -73,6 +75,12 @@ public class Logs extends Fragment {
                 realTimeRecorder = null;
             }
             trackData = DataStorage.getTrackData();
+            String trackName = DataStorage.getCachedFileName();
+            if (DataStorage.currentlyRecording())
+                tstatus.setText("Recording track " + trackName + "\n End the recording to go back in real time mode");
+            else
+                tstatus.setText("Showing data recorded in track " + trackName + "\n Stop the track to go back in real time mode");
+
             timeSeekBar.setEnabled(true);
         }
     }
@@ -98,6 +106,7 @@ public class Logs extends Fragment {
         );*/
 
         tdate = myView.findViewById(R.id.date);
+        tstatus = myView.findViewById(R.id.status);
         timeSeekBar = myView.findViewById(R.id.mainSeekBar);
         timeSeekBar.setProgress(0);
         long startTimestamp = System.currentTimeMillis();
@@ -106,6 +115,8 @@ public class Logs extends Fragment {
         tdate.setText(beginningMessage);
 
         checkAndRefreshState();
+
+        showDataAtTime(progressToTimestamp());
 
         timeSeekBar.setOnSeekBarChangeListener(
                 new SeekBar.OnSeekBarChangeListener() {

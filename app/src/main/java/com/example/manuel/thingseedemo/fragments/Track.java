@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -71,9 +72,6 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
     private String               username, password;
 
-    Intent myIntent;
-
-
     public Track() {
         // Required empty public constructor
     }
@@ -116,6 +114,7 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
                 setView(R.layout.fragment_track);
                 getViewItems(R.layout.fragment_track);
                 getActivity().stopService(new Intent(getActivity(), TrackService.class));
+                DataStorage.setCurrentlyRecording(false);
                 //getActivity().stopService(myIntent);
                 break;
 
@@ -328,13 +327,14 @@ public class Track extends Fragment implements View.OnClickListener,AdapterView.
 
 //        Long timeStamp = System.currentTimeMillis()/1000;
 
-        myIntent = new Intent(getActivity(),TrackService.class);
+        Intent myIntent = new Intent(getActivity(),TrackService.class);
 
         myIntent.putExtra(KEY_INTERVAL,interval);
         myIntent.putExtra(KEY_USERNAME,username);
         myIntent.putExtra(KEY_PASSWORD,password);
         myIntent.putExtra(LAST_TRACK,trackName);
         getActivity().startService(myIntent);
+        DataStorage.setCurrentlyRecording(true);
     }
 
     private void getCredentials() {
