@@ -42,15 +42,6 @@ import java.util.List;
  */
 public class Map extends Fragment implements OnMapReadyCallback {
 
-    static final String MODE_KEY = "MODE_KEY";
-    static final String MODE = "MODE";
-    static final String REAL_MODE = "REAL";
-    static final String RECORD_MODE = "RECORD";
-    static final String TRACK_MODE = "TRACK";
-    static final String LAST_TRACK = "LAST";
-    static final String ALL_TRACK = "ALL";
-    static final String RUNNING_TRACK = "RUNNING";
-    static final String NONE = "NONE";
     private static final String PREFERENCEID = "Credentials";
     static final int REQUEST_DELAY = 10000;
 
@@ -62,13 +53,9 @@ public class Map extends Fragment implements OnMapReadyCallback {
     PolylineOptions polylineOptions;
 
 
-    SharedPreferences sharedPreferences;
-    String trackName;
     boolean real = true;
 
-    ThingSee thingSee;
     RealTimeRecorder realTimeRecorder;
-    TrackData trackData;
     private String               username, password;
 
     ProgressDialog progressDialog;
@@ -130,7 +117,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         myMap = googleMap;
         myMap.setInfoWindowAdapter(new CustomMarkerInfo(getActivity()));
 
-        LatLng metropolia = new LatLng(60.220941, 24.804980);
+        //LatLng metropolia = new LatLng(60.220941, 24.804980);
 
 
         if(real) {
@@ -160,8 +147,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
     private void StartTrack() {
 
-        trackData = new TrackData();
-        trackData.start(10000);
+        //trackData = new TrackData();
+        //trackData.start(10000);
         getCredentials();
 
         realTimeRecorder = new RealTimeRecorder(username, password, REQUEST_DELAY);
@@ -213,16 +200,9 @@ public class Map extends Fragment implements OnMapReadyCallback {
             TimeStream<LocationData> locationDataTimeStream = trackData.getLocationStream();
             if(locationDataTimeStream!=null) {
 
-//                ArrayList<LocationData> locationData = locationDataTimeStream.createSamples(4000);
-//                for (int i = 1; i < locationData.size(); i++) {
-//
-//                    polylineOptions.add(new LatLng(locationData.get(i).getLatitude(),locationData.get(i).getLongitude()));
-//                    Log.d("location : longitue - ", locationData.get(i).getLongitude() + "");
-//                }
-
                 for ( int j = 0; j < locationDataTimeStream.sampleCount(); j++){
                     polylineOptions.add(locationDataTimeStream.get(j).getLatLang());
-                    Log.d("LATLANG : ",locationDataTimeStream.get(j).getLatLang().latitude + " " + locationDataTimeStream.get(j).getLatLang().longitude);
+                    //Log.d("LATLANG : ",locationDataTimeStream.get(j).getLatLang().latitude + " " + locationDataTimeStream.get(j).getLatLang().longitude);
                 }
             }
         }

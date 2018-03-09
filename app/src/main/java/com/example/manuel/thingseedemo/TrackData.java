@@ -104,7 +104,7 @@ public class TrackData implements Serializable {
      */
     void recordMore(ThingSee ts){
         //Change "fake" to true to use fake data instead of real one (for debugging)
-        final boolean fake = false;
+        final boolean fake = true;
 
         //If the track has not been started we can not record
         if (!initialized) {
