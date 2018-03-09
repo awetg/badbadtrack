@@ -79,7 +79,7 @@ public class Logs extends Fragment {
             if (DataStorage.currentlyRecording())
                 tstatus.setText("Recording track " + trackName + "\n End the recording to go back in real time mode");
             else
-                tstatus.setText("Showing data recorded in track " + trackName + "\n Stop the track to go back in real time mode");
+                tstatus.setText("Showing data recorded in track " + trackName + "\n Deselect the track to go back in real time mode");
 
             timeSeekBar.setEnabled(true);
         }

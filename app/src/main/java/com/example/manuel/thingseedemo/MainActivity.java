@@ -23,10 +23,8 @@ import android.widget.TextView;
 
 import com.example.manuel.thingseedemo.fragments.About;
 import com.example.manuel.thingseedemo.fragments.Help;
-import com.example.manuel.thingseedemo.fragments.History;
 import com.example.manuel.thingseedemo.fragments.Logs;
 import com.example.manuel.thingseedemo.fragments.Map;
-import com.example.manuel.thingseedemo.fragments.Settings;
 import com.example.manuel.thingseedemo.fragments.Track;
 import com.example.manuel.thingseedemo.util.DataStorage;
 
@@ -167,14 +165,6 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.track:
                 fragment = new Track();
-                break;
-
-            case R.id.history:
-                fragment = new History();
-                break;
-
-            case R.id.settings:
-                fragment = new Settings();
                 break;
 
             case R.id.about:

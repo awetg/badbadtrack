@@ -22,7 +22,6 @@ import com.example.manuel.thingseedemo.RealTimeRecorder;
 import com.example.manuel.thingseedemo.ThingSee;
 import com.example.manuel.thingseedemo.TimeStream;
 import com.example.manuel.thingseedemo.TrackData;
-import com.example.manuel.thingseedemo.util.CustomMarkerInfo;
 import com.example.manuel.thingseedemo.util.DataStorage;
 import com.example.manuel.thingseedemo.util.TimestampDateHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -115,7 +114,6 @@ public class Map extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
 
         myMap = googleMap;
-        myMap.setInfoWindowAdapter(new CustomMarkerInfo(getActivity()));
 
         //LatLng metropolia = new LatLng(60.220941, 24.804980);
 
@@ -137,7 +135,9 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
             myMap.addPolyline(polylineOptions);
             List<LatLng> l = polylineOptions.getPoints();
-            myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(l.get(l.size() - 1), 15));
+
+            if (l!=null && l.size() > 0)
+                myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(l.get(l.size() - 1), 15));
 
 
         }

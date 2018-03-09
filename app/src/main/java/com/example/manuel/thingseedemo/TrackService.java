@@ -146,6 +146,7 @@ public class TrackService extends Service {
         Resources resources = this.getResources();
         Notification myNotification = new Notification.Builder(this)
                 .setContentIntent(pendingIntent)
+                .setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round))
                 .setWhen(System.currentTimeMillis())
