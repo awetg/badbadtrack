@@ -169,12 +169,18 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         //Resulting TimeStream
         TimeStream<ScalarData> result = new TimeStream<>(outOfBoundMargin);
 
-        //If the TimeStream has less than 2 elements we can not compute the integral
-        if (data.size() <= 1)
+        //If the TimeStream is empty we can not compute the integral
+        if (data.size() <= 0)
             return result;
 
         //Get the first element as the first oldElem
         T oldElem = data.get(0);
+
+        //The integral always starts from 0
+        ScalarData firstIntegralElement = new ScalarData();
+        firstIntegralElement.setValue(0.0);
+        firstIntegralElement.setTime(oldElem.getTime());
+        result.addSample(firstIntegralElement);
 
         //For each pair of elements and their dt, call the integral function, keeping track of the accumulator
         for (int i = 1; i < data.size(); i++){
@@ -276,11 +282,11 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
         }
 
         //If we are not interpolating and before (= after - 1) exists...
-        if (!doInterpolation && before > 0 && before < data.size()){
+        if (!doInterpolation && before >= 0 && before < data.size()){
             T itemBefore = data.get(before);
 
             //Return the item right before the specified time if not too old, otherwise return null
-            if (time - itemBefore.getTime() <= outOfBoundMargin)
+            if (time - itemBefore.getTime() <= outOfBoundMargin / 5.0)
                 return itemBefore;
             else
                 return null;

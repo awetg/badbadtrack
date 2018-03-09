@@ -68,7 +68,7 @@ public class TrackData implements Serializable {
         temperature = new TimeStream<>(outOfBoundMargin*3);
         battery = new TimeStream<>(outOfBoundMargin*9);
 
-        //impact.setInterpolation(false);
+        impact.setInterpolation(false);
 
         distance = new TimeStream<>(outOfBoundMargin);
         initialized = true;
@@ -93,6 +93,8 @@ public class TrackData implements Serializable {
         temperature = new TimeStream<>(outOfBoundMargin*3);
         battery = new TimeStream<>(outOfBoundMargin*9);
 
+        impact.setInterpolation(false);
+
         distance = new TimeStream<>(outOfBoundMargin);
         initialized = true;
 
@@ -104,7 +106,7 @@ public class TrackData implements Serializable {
      */
     void recordMore(ThingSee ts){
         //Change "fake" to true to use fake data instead of real one (for debugging)
-        final boolean fake = true;
+        final boolean fake = false;
 
         //If the track has not been started we can not record
         if (!initialized) {
@@ -218,10 +220,10 @@ public class TrackData implements Serializable {
                 Log.d("DIST", "Inc loc: " + incomingLocations.getFirst().getLatitude());*/
 
                 if (lastDistance != null && lastLocation != null) {
-                    constant = distance.getLast().getValue();
+                    constant = lastDistance.getValue();
                     //Log.d("DIST", "Last dist: " + constant);
 
-                    constant += location.getLast().arcLengthDist(incomingLocations.getFirst());
+                    constant += lastLocation.arcLengthDist(incomingLocations.getFirst());
                 }
 
                // Log.d("DIST", "Distance calculation constant: " + constant);
