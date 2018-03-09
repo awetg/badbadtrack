@@ -1,6 +1,7 @@
 package com.example.manuel.thingseedemo.fragments;
 
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import com.example.manuel.thingseedemo.RealTimeRecorder;
 import com.example.manuel.thingseedemo.ThingSee;
 import com.example.manuel.thingseedemo.TimeStream;
 import com.example.manuel.thingseedemo.TrackData;
+import com.example.manuel.thingseedemo.util.CustomMarkerInfo;
 import com.example.manuel.thingseedemo.util.DataStorage;
 import com.example.manuel.thingseedemo.util.TimestampDateHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -69,14 +71,17 @@ public class Map extends Fragment implements OnMapReadyCallback {
     TrackData trackData;
     private String               username, password;
 
+    ProgressDialog progressDialog;
+
 
 
     private Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg){
-            if (msg.what == RealTimeRecorder.DATA_UPDATED)
+            if (msg.what == RealTimeRecorder.DATA_UPDATED) {
                 updateLocation();
                 Log.d("INFO", "Message received from Logs");
+            }
         }
     };
 
@@ -96,11 +101,9 @@ public class Map extends Fragment implements OnMapReadyCallback {
         // myView in case we want to access ui elements in this fragment
 
         myView = inflater.inflate(R.layout.fragment_map, container, false);
+        progressDialog = new ProgressDialog(getActivity());
 
-        sharedPreferences = getActivity().getSharedPreferences(MODE_KEY, getActivity().MODE_PRIVATE);
-        String mode = sharedPreferences.getString(MODE,"");
-
-        if(mode!=null && mode.equals(TRACK_MODE)){
+        if(!DataStorage.isRealtime()){
 
             real = false;
 
@@ -125,12 +128,15 @@ public class Map extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
 
         myMap = googleMap;
+        myMap.setInfoWindowAdapter(new CustomMarkerInfo(getActivity()));
 
         LatLng metropolia = new LatLng(60.220941, 24.804980);
 
 
         if(real) {
 
+            progressDialog.setMessage("Connecting to Thingsee server");
+            progressDialog.show();
             StartTrack();
 
         }
@@ -140,7 +146,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
             if(polylineOptions!=null) {
 
             // adding this location to make the line longer, can't be seen only 3 location data yet
-            polylineOptions.add(metropolia);
+//            polylineOptions.add(metropolia);
 
             myMap.addPolyline(polylineOptions);
             List<LatLng> l = polylineOptions.getPoints();
@@ -174,11 +180,13 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
                 if (locationData == null)
                     return;
-
-                String date = TimestampDateHandler.timestampToDate(locationData.getTime());
+                progressDialog.dismiss();   
+                String date = TimestampDateHandler.relativeTime(locationData.getTime());
                 LatLng lastLatLang = new LatLng(locationData.getLatitude(), locationData.getLongitude());
                 MarkerOptions options1 = new MarkerOptions();
-                options1.position(lastLatLang).title("Location on " + date);
+                options1.position(lastLatLang)
+                        .title("Device location ")
+                .snippet(date);
                 myMap.addMarker(options1);
                 myMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastLatLang, 15));
             }
