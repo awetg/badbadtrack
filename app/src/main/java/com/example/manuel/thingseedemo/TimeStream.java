@@ -189,7 +189,7 @@ public class TimeStream<T extends DataWithTime> implements Serializable {
             ScalarData integralValue = new ScalarData();
             acc = integral.integral(acc, oldElem, curElem, dt);
             integralValue.setValue(acc);
-            integralValue.setTime(oldElem.getTime() + (long)(dt / 2L));
+            integralValue.setTime(curElem.getTime());
             result.addSample(integralValue);
             oldElem = curElem;
         }
